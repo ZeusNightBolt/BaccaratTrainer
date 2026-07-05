@@ -46,14 +46,19 @@
   --danger: #ff6a5c;
 
   /* Derived-road red/blue (regular vs choppy — a system distinct from bet coins) */
-  --road-red: #e8443b;
-  --road-blue: #3d86f0;
+  --road-red: #ff5a4d;
+  --road-blue: #4f9dff;
 
-  /* Scorecard surface */
-  --card-bg: #0c1016;
-  --card-grid: rgba(255, 255, 255, 0.055);
-  --card-grid-str: rgba(255, 255, 255, 0.11);
-  --card-edge: rgba(255, 255, 255, 0.1);
+  /* Electronic LED board */
+  --brass: #c9a05a;
+  --brass-hi: #f0d693;
+  --led-red: #ff473c;
+  --led-blue: #2e9bff;
+  --led-green: #34e07f;
+  --card-bg: #05070c;
+  --card-grid: rgba(120, 150, 200, 0.09);
+  --card-grid-str: rgba(120, 150, 200, 0.16);
+  --card-edge: rgba(201, 160, 90, 0.22);
 
   /* Elevation */
   --sh-1: 0 1px 2px rgba(0, 0, 0, 0.4);
@@ -68,8 +73,8 @@
   --r-sm: 9px;
 
   /* Road cell sizes */
-  --cell-main: 24px;
-  --cell-derived: 12px;
+  --cell-main: 20px;
+  --cell-derived: 10px;
 
   /* Type */
   --font-display: 'Fraunces', 'New York', 'Iowan Old Style', Palatino, Georgia, serif;
@@ -90,20 +95,23 @@ html,
 body {
   margin: 0;
   padding: 0;
-  min-height: 100%;
+  height: 100%;
   background: var(--bg);
   color: var(--ink);
   font-family: var(--font-ui);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
-  overflow-x: hidden;
+  overflow: hidden;
 }
 
 body {
+  /* High-limit room: a warm brass spotlight from above, a green velvet felt-glow
+     from below, and a deep vignette — a lit room, not a flat page. */
   background:
-    radial-gradient(120% 80% at 50% -8%, #12202a 0%, transparent 46%),
-    radial-gradient(90% 60% at 88% 8%, rgba(230, 198, 110, 0.06), transparent 40%),
-    var(--bg);
+    radial-gradient(90% 46% at 50% -6%, rgba(214, 172, 94, 0.16) 0%, transparent 55%),
+    radial-gradient(120% 60% at 50% 116%, rgba(18, 92, 66, 0.34) 0%, transparent 60%),
+    radial-gradient(140% 100% at 50% 50%, transparent 55%, rgba(0, 0, 0, 0.7) 100%),
+    #04050a;
 }
 
 button {
@@ -123,10 +131,20 @@ button {
 .app {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: 100dvh;
   max-width: 640px;
   margin: 0 auto;
   position: relative;
+  overflow: hidden;
+  /* On wider screens the app reads as a lit cabinet standing in the room. */
+  box-shadow: 0 0 0 1px rgba(214, 172, 94, 0.12), 0 30px 90px rgba(0, 0, 0, 0.7);
+}
+
+@media (min-width: 660px) {
+  .app {
+    border-left: 1px solid rgba(214, 172, 94, 0.14);
+    border-right: 1px solid rgba(214, 172, 94, 0.14);
+  }
 }
 
 /* ---------- Topbar ---------- */
@@ -138,9 +156,9 @@ button {
   background: linear-gradient(180deg, rgba(12, 16, 22, 0.9), rgba(10, 13, 19, 0.72));
   backdrop-filter: blur(16px) saturate(1.2);
   -webkit-backdrop-filter: blur(16px) saturate(1.2);
-  border-bottom: 1px solid var(--hairline);
-  position: sticky;
-  top: 0;
+  border-bottom: 1px solid rgba(214, 172, 94, 0.22);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.6), 0 6px 18px rgba(0, 0, 0, 0.4);
+  flex-shrink: 0;
   z-index: 40;
 }
 
@@ -313,6 +331,7 @@ button {
   background: rgba(255, 255, 255, 0.05);
   position: relative;
   z-index: 39;
+  flex-shrink: 0;
 }
 
 .penetration-fill {
@@ -325,25 +344,120 @@ button {
 
 /* ---------- Layout ---------- */
 .table-area {
-  flex: 1;
+  flex: 1 1 auto;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   gap: 10px;
-  padding: 12px 12px 0;
+  padding: 12px 12px 14px;
   width: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+}
+.table-area::-webkit-scrollbar {
+  display: none;
 }
 
 /* ============================================================
    SCOREBOARD — Atlantic City electronic board
    ============================================================ */
 .scoreboard {
-  padding: 12px;
-  border-radius: var(--r-lg);
-  border: 1px solid var(--hairline);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.012));
-  box-shadow: var(--sh-2), inset 0 1px 0 rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(8px) saturate(1.1);
-  -webkit-backdrop-filter: blur(8px) saturate(1.1);
+  position: relative;
+  flex-shrink: 0;
+  padding: 9px 10px 10px;
+  border-radius: 16px;
+  border: 1px solid var(--card-edge);
+  background: linear-gradient(180deg, #10131b 0%, #090b12 46%, #06070d 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(240, 214, 147, 0.14),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.5),
+    inset 0 22px 40px rgba(0, 0, 0, 0.45),
+    0 14px 34px rgba(0, 0, 0, 0.62);
+  overflow: hidden;
+}
+/* glass sheen across the top of the cabinet */
+.scoreboard::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 46%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), transparent);
+  pointer-events: none;
+}
+
+/* Recent-results LED ticker */
+.result-ticker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  padding: 6px 8px;
+  border-radius: 10px;
+  background: radial-gradient(120% 180% at 50% -40%, rgba(46, 155, 255, 0.05), transparent 60%), #03040a;
+  border: 1px solid rgba(0, 0, 0, 0.6);
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.85), inset 0 0 0 1px rgba(201, 160, 90, 0.14);
+  position: relative;
+}
+.ticker-label {
+  font-size: 0.54rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  color: var(--brass);
+  flex-shrink: 0;
+}
+.ticker-track {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  flex: 1;
+}
+.ticker-track::-webkit-scrollbar {
+  display: none;
+}
+.ticker-empty {
+  font-size: 0.62rem;
+  color: var(--ink-mute);
+}
+.ticker-pill {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  display: grid;
+  place-items: center;
+  font-size: 0.62rem;
+  font-weight: 800;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+.ticker-pill.tick-B {
+  background: radial-gradient(circle at 40% 30%, var(--banker-hi), var(--led-red) 70%);
+  box-shadow: 0 0 8px rgba(255, 71, 60, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+}
+.ticker-pill.tick-P {
+  background: radial-gradient(circle at 40% 30%, var(--player-hi), var(--led-blue) 70%);
+  box-shadow: 0 0 8px rgba(46, 155, 255, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+}
+.ticker-pill.tick-TIE {
+  background: radial-gradient(circle at 40% 30%, var(--tie-hi), var(--led-green) 70%);
+  box-shadow: 0 0 8px rgba(52, 224, 127, 0.55), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+}
+.ticker-pill.tick-latest {
+  outline: 1.5px solid var(--brass-hi);
+  outline-offset: 1px;
+  animation: tickPulse 1.8s var(--ease) infinite;
+}
+@keyframes tickPulse {
+  0%,
+  100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.4);
+  }
 }
 
 .scoreboard-header {
@@ -352,7 +466,7 @@ button {
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 8px;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .scoreboard-tabs {
@@ -384,8 +498,8 @@ button {
 .road-legend {
   display: flex;
   align-items: center;
-  gap: 9px;
-  font-size: 0.64rem;
+  gap: 7px;
+  font-size: 0.56rem;
   color: var(--ink-dim);
   font-weight: 600;
   flex-wrap: wrap;
@@ -449,7 +563,7 @@ button {
   display: grid;
   grid-template-columns: auto 1fr;
   gap: 10px;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .road-pane {
@@ -461,16 +575,21 @@ button {
   display: block;
   margin: 0 0 5px 2px;
   font-size: 0.56rem;
-  font-weight: 700;
-  letter-spacing: 0.09em;
+  font-weight: 800;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--ink-mute);
+  color: var(--brass);
 }
 
 .road-title em {
   font-style: normal;
-  opacity: 0.65;
+  opacity: 0.6;
   margin-left: 3px;
+  color: var(--brass-hi);
+}
+
+.derived-label {
+  color: var(--brass) !important;
 }
 
 /* Scorecard surface (shared by every grid) */
@@ -494,9 +613,12 @@ button {
     var(--cell) var(--cell),
     calc(var(--cell) * 6) calc(var(--cell) * 6),
     calc(var(--cell) * 6) calc(var(--cell) * 6);
-  border: 1px solid var(--card-edge);
-  border-radius: 10px;
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(0, 0, 0, 0.7);
+  border-radius: 9px;
+  box-shadow:
+    inset 0 2px 10px rgba(0, 0, 0, 0.9),
+    inset 0 0 0 1px rgba(201, 160, 90, 0.12),
+    0 1px 0 rgba(240, 214, 147, 0.06);
   scrollbar-width: none;
 }
 .road-grid::-webkit-scrollbar {
@@ -523,7 +645,7 @@ button {
   place-items: center;
 }
 
-/* Big Road — hollow rings, red banker / blue player */
+/* Big Road — glowing hollow LED rings, red banker / blue player */
 .road-cell.shape-bigroad::before {
   content: '';
   width: 70%;
@@ -532,17 +654,18 @@ button {
   box-sizing: border-box;
   background: transparent;
   border: 2.5px solid currentColor;
-  box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 0 5px currentColor, inset 0 0 3px currentColor;
 }
 .road-cell.shape-bigroad.outcome-B {
-  color: var(--banker);
+  color: var(--led-red);
 }
 .road-cell.shape-bigroad.outcome-P {
-  color: var(--player);
+  color: var(--led-blue);
 }
 .road-cell.shape-bigroad.outcome-TIE::before {
   border: none;
-  background: radial-gradient(circle at 40% 32%, var(--tie-hi), var(--tie) 55%, var(--tie-deep));
+  background: radial-gradient(circle at 40% 32%, var(--tie-hi), var(--led-green) 55%, var(--tie-deep));
+  box-shadow: 0 0 6px rgba(52, 224, 127, 0.6);
 }
 
 /* Bead Plate — solid glossy coins + letter */
@@ -554,13 +677,16 @@ button {
   box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.35), 0 1px 2px rgba(0, 0, 0, 0.55);
 }
 .road-cell.shape-beadplate.outcome-B::before {
-  background: radial-gradient(circle at 38% 30%, var(--banker-hi), var(--banker) 45%, var(--banker-deep));
+  background: radial-gradient(circle at 38% 30%, var(--banker-hi), var(--led-red) 55%, var(--banker-deep));
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.4), 0 0 7px rgba(255, 71, 60, 0.5);
 }
 .road-cell.shape-beadplate.outcome-P::before {
-  background: radial-gradient(circle at 38% 30%, var(--player-hi), var(--player) 45%, var(--player-deep));
+  background: radial-gradient(circle at 38% 30%, var(--player-hi), var(--led-blue) 55%, var(--player-deep));
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.4), 0 0 7px rgba(46, 155, 255, 0.5);
 }
 .road-cell.shape-beadplate.outcome-TIE::before {
-  background: radial-gradient(circle at 38% 30%, var(--tie-hi), var(--tie) 45%, var(--tie-deep));
+  background: radial-gradient(circle at 38% 30%, var(--tie-hi), var(--led-green) 55%, var(--tie-deep));
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.4), 0 0 7px rgba(52, 224, 127, 0.5);
 }
 
 .bead-letter {
@@ -584,6 +710,7 @@ button {
   box-sizing: border-box;
   background: transparent;
   border: 1.6px solid currentColor;
+  box-shadow: 0 0 3px currentColor;
 }
 /* Small Road = solid dot */
 .derived-cell.shape-dot::before {
@@ -594,6 +721,7 @@ button {
   background:
     radial-gradient(circle at 38% 32%, rgba(255, 255, 255, 0.5), transparent 55%),
     currentColor;
+  box-shadow: 0 0 4px currentColor;
 }
 /* Cockroach = diagonal slash */
 .derived-cell.shape-slash::before {
@@ -603,12 +731,13 @@ button {
   border-radius: 2px;
   background: currentColor;
   transform: rotate(45deg);
+  box-shadow: 0 0 3px currentColor;
 }
 .derived-cell.outcome-R {
-  color: var(--road-red);
+  color: var(--led-red);
 }
 .derived-cell.outcome-B {
-  color: var(--road-blue);
+  color: var(--led-blue);
 }
 
 /* Overlays (Big Road only) */
@@ -704,10 +833,10 @@ button {
    FELT — printed AC / Resorts World mini-bac table
    ============================================================ */
 .felt {
-  flex: 1;
+  flex: 0 0 auto;
   position: relative;
-  border-radius: 30px;
-  padding: 16px 14px 40px;
+  border-radius: 26px;
+  padding: 12px 12px 22px;
   isolation: isolate;
   display: flex;
   flex-direction: column;
@@ -789,7 +918,7 @@ button {
   align-items: flex-start;
   justify-content: space-between;
   gap: 10px;
-  min-height: 118px;
+  min-height: 96px;
 }
 
 .hand {
@@ -1381,8 +1510,8 @@ button {
 .chip {
   --face: #333;
   --rim: #111;
-  width: 30px;
-  height: 30px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   position: relative;
   flex-shrink: 0;
@@ -1390,7 +1519,9 @@ button {
   display: grid;
   place-items: center;
   font-weight: 800;
-  font-size: 0.6rem;
+  font-size: 0.46rem;
+  letter-spacing: -0.02em;
+  line-height: 1;
   color: #fff;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55);
   background:
@@ -1494,13 +1625,13 @@ button {
   background: linear-gradient(0deg, rgba(6, 8, 12, 0.96), rgba(10, 13, 19, 0.86));
   backdrop-filter: blur(16px) saturate(1.2);
   -webkit-backdrop-filter: blur(16px) saturate(1.2);
-  border-top: 1px solid var(--hairline);
+  border-top: 1px solid rgba(214, 172, 94, 0.22);
+  box-shadow: 0 -1px 0 rgba(0, 0, 0, 0.6), 0 -8px 24px rgba(0, 0, 0, 0.45);
   padding: 9px 14px calc(9px + env(safe-area-inset-bottom));
   display: flex;
   flex-direction: column;
   gap: 9px;
-  position: sticky;
-  bottom: 0;
+  flex-shrink: 0;
   z-index: 40;
 }
 
@@ -2130,8 +2261,8 @@ button {
 /* ---------- Responsive ---------- */
 @media (min-width: 560px) {
   :root {
-    --cell-main: 27px;
-    --cell-derived: 13px;
+    --cell-main: 24px;
+    --cell-derived: 12px;
   }
   .card-slots {
     min-height: 84px;
@@ -2144,8 +2275,8 @@ button {
 
 @media (min-width: 820px) {
   :root {
-    --cell-main: 30px;
-    --cell-derived: 14px;
+    --cell-main: 27px;
+    --cell-derived: 13px;
   }
 }
 

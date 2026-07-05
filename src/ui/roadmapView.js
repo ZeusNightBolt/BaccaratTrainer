@@ -17,6 +17,7 @@ export class RoadmapView {
   constructor(root) {
     this.beadEl = root.querySelector('#road-bead');
     this.bigEl = root.querySelector('#road-main');
+    this.tickerEl = root.querySelector('#ticker-track');
     this.boardTop = root.querySelector('.board-top');
     this.derivedEls = {};
     for (const d of DERIVED) this.derivedEls[d.name] = root.querySelector(`#${d.id}`);
@@ -48,6 +49,32 @@ export class RoadmapView {
     for (const d of DERIVED) {
       renderGrid(this.derivedEls[d.name], game.road.derivedRoad(d.name), d.variant);
     }
+
+    this.renderTicker(game.shoeRounds);
+  }
+
+  // A glowing LED strip of the last results (newest on the right), like the
+  // number-history board in an Atlantic City high-limit electronic pit.
+  renderTicker(rounds) {
+    if (!this.tickerEl) return;
+    this.tickerEl.innerHTML = '';
+    const recent = rounds.slice(-18);
+    if (recent.length === 0) {
+      const empty = document.createElement('span');
+      empty.className = 'ticker-empty';
+      empty.textContent = 'No results yet';
+      this.tickerEl.appendChild(empty);
+      return;
+    }
+    recent.forEach((r, i) => {
+      const code = OUTCOME_CODE[r.hand.outcome];
+      const pill = document.createElement('span');
+      pill.className = `ticker-pill tick-${code}`;
+      if (i === recent.length - 1) pill.classList.add('tick-latest');
+      pill.textContent = code === 'TIE' ? 'T' : code;
+      this.tickerEl.appendChild(pill);
+    });
+    this.tickerEl.scrollLeft = this.tickerEl.scrollWidth;
   }
 }
 
