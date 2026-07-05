@@ -13,6 +13,8 @@ export default [
         console: 'readonly',
         setTimeout: 'readonly',
         requestAnimationFrame: 'readonly',
+        cancelAnimationFrame: 'readonly',
+        performance: 'readonly',
       },
     },
     rules: {

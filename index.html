@@ -47,29 +47,55 @@
             <button class="tab-btn" data-view="beadplate">Bead Plate</button>
           </div>
           <div class="road-legend">
-            <span><i class="dot dot-banker"></i>Banker</span>
-            <span><i class="dot dot-player"></i>Player</span>
-            <span><i class="dot dot-tie"></i>Tie</span>
+            <span><i class="lg lg-coin banker"></i>Banker</span>
+            <span><i class="lg lg-coin player"></i>Player</span>
+            <span><i class="lg lg-coin tie"></i>Tie</span>
+            <i class="lg-sep"></i>
+            <span><i class="lg lg-ring"></i>Big&nbsp;Eye</span>
+            <span><i class="lg lg-dot"></i>Small</span>
+            <span><i class="lg lg-slash"></i>Cockroach</span>
           </div>
         </div>
-        <div class="road-main" id="road-main"></div>
+
+        <div class="board-top" data-mobile-view="bigroad">
+          <div class="road-pane bead-pane" data-pane="beadplate">
+            <span class="road-title">Bead Plate <em>珠盤路</em></span>
+            <div class="road-grid bead-grid" id="road-bead"></div>
+          </div>
+          <div class="road-pane big-pane" data-pane="bigroad">
+            <span class="road-title">Big Road <em>大路</em></span>
+            <div class="road-grid" id="road-main"></div>
+          </div>
+        </div>
+
         <div class="derived-roads">
           <div class="derived-road">
             <span class="derived-label">Big Eye Boy</span>
-            <div class="derived-grid" id="road-bigeyeboy"></div>
+            <div class="road-grid derived-grid" id="road-bigeyeboy"></div>
           </div>
           <div class="derived-road">
             <span class="derived-label">Small Road</span>
-            <div class="derived-grid" id="road-smallroad"></div>
+            <div class="road-grid derived-grid" id="road-smallroad"></div>
           </div>
           <div class="derived-road">
-            <span class="derived-label">Cockroach Road</span>
-            <div class="derived-grid" id="road-cockroach"></div>
+            <span class="derived-label">Cockroach</span>
+            <div class="road-grid derived-grid" id="road-cockroach"></div>
           </div>
         </div>
       </section>
 
       <section class="felt">
+        <svg class="felt-print" viewBox="0 0 400 300" preserveAspectRatio="xMidYMin slice" aria-hidden="true">
+          <defs>
+            <path id="arc" d="M 30 96 Q 200 28 370 96" />
+          </defs>
+          <use href="#arc" class="arc-shadow" />
+          <use href="#arc" class="arc-gold" />
+          <path d="M 30 103 Q 200 35 370 103" class="arc-white" />
+          <text class="arc-text">
+            <textPath href="#arc" startOffset="50%">·  PLAYER  ·  TIE  ·  BANKER  ·</textPath>
+          </text>
+        </svg>
         <div class="hand-zone">
           <div class="hand player-hand" id="player-hand">
             <div class="hand-label">Player</div>
@@ -86,21 +112,19 @@
 
         <div class="betting-layout" id="betting-layout">
           <div class="corner-row">
-            <button class="bet-spot bet-spot-pair" data-spot="playerPair">
-              <span class="spot-top">
-                <span class="spot-label">Player Pair</span>
-                <span class="spot-payout">11:1</span>
-              </span>
-              <span class="chip-stack" data-stack="playerPair"></span>
-              <span class="stake-badge" data-stake="playerPair"></span>
+            <button class="bet-spot bet-spot-bonus" data-spot="playerBonus" aria-label="Player Bonus, Dragon Bonus, pays up to 30 to 1">
+              <span class="bonus-head"><span class="bonus-side">Player</span><span class="bonus-title">Bonus</span></span>
+              <span class="bonus-max">to&nbsp;<b>30:1</b></span>
+              <span class="bonus-ladder" aria-hidden="true"></span>
+              <span class="chip-stack" data-stack="playerBonus"></span>
+              <span class="stake-badge" data-stake="playerBonus"></span>
             </button>
-            <button class="bet-spot bet-spot-pair" data-spot="bankerPair">
-              <span class="spot-top">
-                <span class="spot-label">Banker Pair</span>
-                <span class="spot-payout">11:1</span>
-              </span>
-              <span class="chip-stack" data-stack="bankerPair"></span>
-              <span class="stake-badge" data-stake="bankerPair"></span>
+            <button class="bet-spot bet-spot-bonus" data-spot="bankerBonus" aria-label="Banker Bonus, Dragon Bonus, pays up to 30 to 1">
+              <span class="bonus-head"><span class="bonus-side">Banker</span><span class="bonus-title">Bonus</span></span>
+              <span class="bonus-max">to&nbsp;<b>30:1</b></span>
+              <span class="bonus-ladder" aria-hidden="true"></span>
+              <span class="chip-stack" data-stack="bankerBonus"></span>
+              <span class="stake-badge" data-stake="bankerBonus"></span>
             </button>
           </div>
 
@@ -127,20 +151,20 @@
 
           <div class="side-row">
             <button class="bet-spot bet-spot-side bet-spot-moon8" data-spot="moon8">
-              <span class="spot-top">
-                <span class="spot-label">&#127772; Moon 8</span>
-                <span class="spot-payout" id="payout-moon8">25:1</span>
+              <span class="side-emblem">&#127772;</span>
+              <span class="side-copy">
+                <span class="side-top"><span class="side-name">Moon 8</span><span class="spot-payout" id="payout-moon8">25:1</span></span>
+                <span class="spot-sub">Player wins on 3-card 8</span>
               </span>
-              <span class="spot-sub">Player wins on 3-card 8</span>
               <span class="chip-stack" data-stack="moon8"></span>
               <span class="stake-badge" data-stake="moon8"></span>
             </button>
             <button class="bet-spot bet-spot-side bet-spot-sun7" data-spot="sun7">
-              <span class="spot-top">
-                <span class="spot-label">&#9728; Sun 7</span>
-                <span class="spot-payout" id="payout-sun7">40:1</span>
+              <span class="side-emblem">&#9728;</span>
+              <span class="side-copy">
+                <span class="side-top"><span class="side-name">Sun 7</span><span class="spot-payout" id="payout-sun7">40:1</span></span>
+                <span class="spot-sub">Banker wins on 3-card 7</span>
               </span>
-              <span class="spot-sub">Banker wins on 3-card 7</span>
               <span class="chip-stack" data-stack="sun7"></span>
               <span class="stake-badge" data-stake="sun7"></span>
             </button>
