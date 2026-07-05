@@ -1,8 +1,9 @@
-import { createCardElement, dealSequence } from './cards.js';
+import { createCardElement, revealCard, dealSequence } from './cards.js';
 import { renderChipStack, formatCurrency } from './chips.js';
 import { handTotal } from '../game/rules.js';
 
-const CARD_STEP_MS = 260;
+const CARD_STEP_MS = 320;
+const FLIP_DELAY_MS = 140;
 
 export class TableView {
   constructor(root) {
@@ -49,8 +50,11 @@ export class TableView {
     for (let i = 0; i < sequence.length; i += 1) {
       const step = sequence[i];
       const container = step.hand === 'player' ? this.playerCards : this.bankerCards;
-      container.appendChild(createCardElement(step.card, 0));
-      await wait(CARD_STEP_MS);
+      const cardEl = createCardElement(step.card, step.hand);
+      container.appendChild(cardEl);
+      await wait(FLIP_DELAY_MS);
+      revealCard(cardEl);
+      await wait(CARD_STEP_MS - FLIP_DELAY_MS);
       const cardsSoFar = (step.hand === 'player' ? hand.player : hand.banker).slice(0, step.index + 1);
       const totalEl = step.hand === 'player' ? this.playerTotal : this.bankerTotal;
       totalEl.textContent = String(handTotal(cardsSoFar));

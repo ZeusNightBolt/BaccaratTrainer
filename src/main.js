@@ -3,10 +3,13 @@ import { TableView } from './ui/table.js';
 import { RoadmapView } from './ui/roadmapView.js';
 import { renderChipRail, formatCurrency, CHIP_VALUES } from './ui/chips.js';
 import { RULES_HTML } from './ui/rulesContent.js';
+import { PayoutSettingsView } from './ui/payoutSettings.js';
+import { RoadGenieView } from './ui/roadGenieView.js';
 
 const game = new GameState();
 const table = new TableView(document.getElementById('app'));
 const roadmap = new RoadmapView(document.getElementById('scoreboard'));
+const genie = new RoadGenieView(document.getElementById('app'), game);
 
 let selectedChip = CHIP_VALUES[1]; // default to $25
 
@@ -28,9 +31,23 @@ const el = {
   statsBody: document.getElementById('stats-body'),
   btnStats: document.getElementById('btn-stats'),
   statsClose: document.getElementById('stats-close'),
+  settingsModal: document.getElementById('settings-modal'),
+  btnSettings: document.getElementById('btn-settings'),
+  settingsClose: document.getElementById('settings-close'),
+  payoutSun7: document.getElementById('payout-sun7'),
+  payoutMoon8: document.getElementById('payout-moon8'),
 };
 
 let locked = false;
+
+function refreshPayoutLabels() {
+  el.payoutSun7.textContent = `${game.payouts.sun7}:1`;
+  el.payoutMoon8.textContent = `${game.payouts.moon8}:1`;
+}
+
+const payoutSettings = new PayoutSettingsView(document, game, {
+  onChange: refreshPayoutLabels,
+});
 
 function refreshChipRail() {
   renderChipRail(el.chipRail, {
@@ -44,7 +61,7 @@ function refreshChipRail() {
 
 function refreshStats() {
   el.bankroll.textContent = formatCurrency(game.bankroll);
-  el.shoe.textContent = `#${game.shoeNumber} · Hand ${game.history.length}`;
+  el.shoe.textContent = `#${game.shoeNumber} · ${game.history.length}h`;
   el.penetration.style.width = `${Math.min(100, Math.round(game.shoe.penetration() * 100))}%`;
 }
 
@@ -56,6 +73,7 @@ function refreshActionButtons() {
   el.btnClear.disabled = !betting || !hasBet;
   el.btnRebet.disabled = !betting || !hasLastBet || hasBet;
   el.btnDouble.disabled = !betting || !hasBet;
+  el.btnSettings.disabled = !betting;
   el.betSpots.forEach((spotEl) => {
     spotEl.disabled = !betting;
   });
@@ -127,6 +145,7 @@ el.btnDeal.addEventListener('click', async () => {
   table.showResult(round);
   refreshStats();
   roadmap.render(game);
+  genie.render();
 
   if (game.bankroll <= 0) {
     game.bankroll = STARTING_BANKROLL;
@@ -177,8 +196,19 @@ el.statsModal.addEventListener('click', (e) => {
   if (e.target === el.statsModal) closeModal(el.statsModal);
 });
 
+el.btnSettings.addEventListener('click', () => {
+  if (el.btnSettings.disabled) return;
+  payoutSettings.refresh();
+  openModal(el.settingsModal);
+});
+el.settingsClose.addEventListener('click', () => closeModal(el.settingsModal));
+el.settingsModal.addEventListener('click', (e) => {
+  if (e.target === el.settingsModal) closeModal(el.settingsModal);
+});
+
 refreshChipRail();
 refreshStats();
 refreshActionButtons();
+refreshPayoutLabels();
 table.updateBets(game.bets);
 roadmap.render(game);

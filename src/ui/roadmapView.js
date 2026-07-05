@@ -25,34 +25,46 @@ export class RoadmapView {
   render(game) {
     this._lastGame = game;
 
-    const cells =
-      this.activeView === 'bigroad'
-        ? game.road.bigRoadGrid()
-        : beadPlateGrid(
-            game.history.map((r) => ({
-              outcome: OUTCOME_CODE[r.hand.outcome],
-              playerPair: r.hand.playerPair,
-              bankerPair: r.hand.bankerPair,
-            }))
-          );
-
-    renderGrid(this.mainEl, cells, { big: true });
+    if (this.activeView === 'bigroad') {
+      renderGrid(this.mainEl, game.road.bigRoadGrid(), 'bigroad');
+    } else {
+      const cells = beadPlateGrid(
+        game.history.map((r) => ({
+          outcome: OUTCOME_CODE[r.hand.outcome],
+          playerPair: r.hand.playerPair,
+          bankerPair: r.hand.bankerPair,
+        }))
+      );
+      renderGrid(this.mainEl, cells, 'beadplate');
+    }
 
     for (const [name, el] of Object.entries(this.derivedEls)) {
-      renderGrid(el, game.road.derivedRoad(name), { big: false });
+      renderGrid(el, game.road.derivedRoad(name), 'derived');
     }
   }
 }
 
-function renderGrid(container, cells, { big }) {
+const ROWS = 6;
+
+// Places each cell at its exact (col,row) via CSS grid coordinates so streaks
+// stack vertically and ties/pairs land on the correct marker — the previous
+// auto-flow approach ignored the coordinates entirely.
+function renderGrid(container, cells, variant) {
   container.innerHTML = '';
-  const sorted = [...cells].sort((a, b) => a.col - b.col || a.row - b.row);
+  container.classList.toggle('is-empty', cells.length === 0);
 
-  for (const cell of sorted) {
+  const columns = cells.length ? Math.max(...cells.map((c) => c.col)) + 1 : 1;
+  container.style.setProperty('--road-cols', columns);
+
+  for (const cell of cells) {
     const el = document.createElement('div');
-    el.className = big ? `road-cell outcome-${cell.outcome}` : `derived-cell outcome-${cell.outcome}`;
+    const base = variant === 'derived' ? 'derived-cell' : 'road-cell';
+    el.className = `${base} outcome-${cell.outcome}`;
+    if (variant === 'beadplate') el.classList.add('is-bead');
+    el.style.gridColumn = String(cell.col + 1);
+    el.style.gridRow = String(cell.row + 1);
 
-    if (big && cell.outcome !== 'TIE') {
+    if (variant === 'bigroad' && cell.outcome !== 'TIE') {
       if (cell.ties) {
         const tie = document.createElement('span');
         tie.className = 'tie-mark';
@@ -76,6 +88,15 @@ function renderGrid(container, cells, { big }) {
       }
     }
 
+    if (variant === 'beadplate') {
+      const letter = document.createElement('span');
+      letter.className = 'bead-letter';
+      letter.textContent = cell.outcome === 'TIE' ? 'T' : cell.outcome;
+      el.appendChild(letter);
+    }
+
     container.appendChild(el);
   }
 }
+
+export { ROWS };

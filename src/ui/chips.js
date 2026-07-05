@@ -18,10 +18,14 @@ export function renderChipRail(container, { selectedValue, onSelect }) {
   }
 }
 
-// Renders a small stack of mini chips representing a bet's approximate composition
-// (largest denominations first) so the felt visually matches how a real stack looks.
+const MAX_VISIBLE_MINI_CHIPS = 4;
+
+// Renders a small overlapping stack of mini chips representing a bet's approximate
+// composition (largest denominations first), capped with a "+N" badge so a single
+// spot never grows tall enough to spill outside its own border.
 export function renderChipStack(container, amount) {
   container.innerHTML = '';
+  container.classList.toggle('has-chips', amount > 0);
   if (!amount) return;
 
   let remaining = amount;
@@ -29,19 +33,28 @@ export function renderChipStack(container, amount) {
   const stackChips = [];
 
   for (const value of denominations) {
-    while (remaining >= value && stackChips.length < 8) {
+    while (remaining >= value && stackChips.length < 20) {
       stackChips.push(value);
       remaining -= value;
     }
   }
   // Any leftover odd amount (e.g. a manually-set minimum) is shown as one more chip
   // of the smallest denomination so the stake badge and stack never disagree.
-  if (remaining > 0 && stackChips.length < 8) stackChips.push(CHIP_VALUES[0]);
+  if (remaining > 0) stackChips.push(CHIP_VALUES[0]);
 
-  for (const value of stackChips) {
+  const visible = stackChips.slice(0, MAX_VISIBLE_MINI_CHIPS);
+  for (const value of visible) {
     const mini = document.createElement('span');
     mini.className = 'chip mini';
     mini.dataset.value = String(value);
     container.appendChild(mini);
+  }
+
+  const hiddenCount = stackChips.length - visible.length;
+  if (hiddenCount > 0) {
+    const overflow = document.createElement('span');
+    overflow.className = 'chip-overflow';
+    overflow.textContent = `+${hiddenCount}`;
+    container.appendChild(overflow);
   }
 }

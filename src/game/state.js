@@ -1,6 +1,13 @@
 import { Shoe } from './shoe.js';
 import { playHand } from './rules.js';
-import { resolveBets, SPOTS } from './sidebets.js';
+import {
+  resolveBets,
+  SPOTS,
+  DEFAULT_PAYOUTS,
+  ADJUSTABLE_SPOTS,
+  MIN_ADJUSTABLE_PAYOUT,
+  MAX_ADJUSTABLE_PAYOUT,
+} from './sidebets.js';
 import { RoadEngine } from './bigroad.js';
 
 const STARTING_BANKROLL = 1000;
@@ -22,6 +29,21 @@ export class GameState {
     this.phase = PHASE.BETTING;
     this.lastRound = null;
     this.shoeNumber = 1;
+    this.payouts = { ...DEFAULT_PAYOUTS };
+  }
+
+  // Sun 7 / Moon 8 paytables vary by casino; let the player retune them between hands.
+  setSideBetPayout(spot, ratio) {
+    if (!ADJUSTABLE_SPOTS.includes(spot)) throw new Error(`${spot} payout is not adjustable`);
+    if (!this.canBet()) throw new Error('Payouts can only be changed between hands');
+    if (!Number.isInteger(ratio) || ratio < MIN_ADJUSTABLE_PAYOUT || ratio > MAX_ADJUSTABLE_PAYOUT) {
+      throw new Error(`Payout must be a whole number between ${MIN_ADJUSTABLE_PAYOUT} and ${MAX_ADJUSTABLE_PAYOUT}`);
+    }
+    this.payouts[spot] = ratio;
+  }
+
+  resetSideBetPayouts() {
+    for (const spot of ADJUSTABLE_SPOTS) this.payouts[spot] = DEFAULT_PAYOUTS[spot];
   }
 
   get totalWagered() {
@@ -83,7 +105,7 @@ export class GameState {
     const hand = playHand(() => this.shoe.draw());
     this.shoe.markHandComplete();
 
-    const { settlement, totalReturned, netChange } = resolveBets(this.bets, hand);
+    const { settlement, totalReturned, netChange } = resolveBets(this.bets, hand, this.payouts);
     this.bankroll += totalReturned;
 
     const roadCode = { PLAYER: 'P', BANKER: 'B', TIE: 'TIE' }[hand.outcome];

@@ -65,6 +65,46 @@ test('history and stats accumulate across rounds', () => {
   assert.equal(stats.wins.player + stats.wins.banker + stats.wins.tie, 3);
 });
 
+test('side bet payouts default to sun7 40:1 / moon8 25:1 and are adjustable between hands', () => {
+  const g = new GameState({ bankroll: 1000 });
+  assert.equal(g.payouts.sun7, 40);
+  assert.equal(g.payouts.moon8, 25);
+
+  g.setSideBetPayout('moon8', 30);
+  assert.equal(g.payouts.moon8, 30);
+
+  g.resetSideBetPayouts();
+  assert.equal(g.payouts.moon8, 25);
+});
+
+test('setSideBetPayout rejects non-adjustable spots, bad ranges, and mid-round changes', () => {
+  const g = new GameState({ bankroll: 1000 });
+  assert.throws(() => g.setSideBetPayout('player', 5));
+  assert.throws(() => g.setSideBetPayout('sun7', 4)); // below minimum
+  assert.throws(() => g.setSideBetPayout('sun7', 101)); // above maximum
+  assert.throws(() => g.setSideBetPayout('sun7', 20.5)); // not an integer
+
+  g.placeChip('player', 10);
+  g.playRound();
+  assert.throws(() => g.setSideBetPayout('sun7', 35)); // mid-round
+});
+
+test('an adjusted moon8 ratio is used when settling the bet', () => {
+  const g = new GameState({ bankroll: 1000 });
+  g.setSideBetPayout('moon8', 50);
+
+  // Deal order P,B,P,B,[P3]: player draws to an 8 on three cards, banker stands on 5.
+  const cards = ['5', '2', '5', '3', '8'].map((rank) => ({ rank, suit: 'S' }));
+  let i = 0;
+  g.shoe.draw = () => cards[i++];
+
+  g.placeChip('moon8', 10);
+  const round = g.playRound();
+
+  assert.equal(round.hand.playerThreeCardEight, true);
+  assert.equal(round.settlement.moon8.returned, 510);
+});
+
 test('shoe reshuffle resets the road engine for a fresh shoe', () => {
   const g = new GameState({ bankroll: 100000, deckCount: 1 });
   const initialShoeNumber = g.shoeNumber;

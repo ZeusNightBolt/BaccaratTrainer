@@ -3,26 +3,36 @@ import { OUTCOME } from './rules.js';
 // This trainer models the commission-free "EZ Baccarat" variant used alongside the
 // Sun 7 / Moon 8 side bets at Atlantic City / Resorts World tables: Banker bets pay
 // even money with NO 5% commission, but push (no win, no loss) when Banker wins with
-// a three-card total of 7 -- that push is exactly what funds the Sun 7 40:1 payout.
+// a three-card total of 7 -- that push is exactly what funds the Sun 7 side bet.
+//
+// House paytables for Sun 7 / Moon 8 vary by casino, so those two ratios are
+// player-adjustable at the table (see GameState.setSideBetPayout); everything
+// else follows the standard fixed paytable below.
 
 export const SPOTS = ['player', 'banker', 'tie', 'playerPair', 'bankerPair', 'sun7', 'moon8'];
 
-export const PAYOUTS = {
+// Spots whose payout ratio the player can retune from the default.
+export const ADJUSTABLE_SPOTS = ['sun7', 'moon8'];
+export const MIN_ADJUSTABLE_PAYOUT = 5;
+export const MAX_ADJUSTABLE_PAYOUT = 100;
+
+export const DEFAULT_PAYOUTS = {
   player: 1,
   banker: 1, // commission-free; pushes on banker 3-card-7 instead
   tie: 8,
   playerPair: 11,
   bankerPair: 11,
   sun7: 40,
-  moon8: 40,
+  moon8: 25,
 };
 
 export const RESULT = { WIN: 'win', LOSE: 'lose', PUSH: 'push' };
 
 // hand: the object returned by playHand() in rules.js
 // bets: { [spot]: stake } — only spots with stake > 0 need be present
+// payouts: optional overrides (typically GameState.payouts) for the adjustable spots
 // Returns { [spot]: { stake, result, profit, returned } } and totals.
-export function resolveBets(bets, hand) {
+export function resolveBets(bets, hand, payouts = DEFAULT_PAYOUTS) {
   const settlement = {};
   let totalStaked = 0;
   let totalReturned = 0;
@@ -32,7 +42,7 @@ export function resolveBets(bets, hand) {
     if (!stake) continue;
     totalStaked += stake;
 
-    const { result, profit } = resolveSpot(spot, stake, hand);
+    const { result, profit } = resolveSpot(spot, stake, hand, payouts);
     const returned = result === RESULT.LOSE ? 0 : stake + profit;
     totalReturned += returned;
     settlement[spot] = { stake, result, profit, returned };
@@ -46,8 +56,8 @@ export function resolveBets(bets, hand) {
   };
 }
 
-function resolveSpot(spot, stake, hand) {
-  const mult = PAYOUTS[spot];
+function resolveSpot(spot, stake, hand, payouts) {
+  const mult = payouts[spot] ?? DEFAULT_PAYOUTS[spot];
   switch (spot) {
     case 'player':
       if (hand.outcome === OUTCOME.PLAYER) return { result: RESULT.WIN, profit: stake * mult };
