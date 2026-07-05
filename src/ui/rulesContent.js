@@ -10,10 +10,11 @@ export const RULES_HTML = `
   <tr><td>Tie</td><td>8:1</td><td>Player and Banker bets push</td></tr>
   <tr><td>Player Pair</td><td>11:1</td><td>Player's first two cards match rank</td></tr>
   <tr><td>Banker Pair</td><td>11:1</td><td>Banker's first two cards match rank</td></tr>
-  <tr><td>☀ Sun 7</td><td>40:1</td><td>Banker wins with a 3-card total of 7</td></tr>
-  <tr><td>🌙 Moon 8</td><td>40:1</td><td>Player wins with a 3-card total of 8</td></tr>
+  <tr><td>☀ Sun 7</td><td>40:1 default</td><td>Banker wins with a 3-card total of 7</td></tr>
+  <tr><td>🌙 Moon 8</td><td>25:1 default</td><td>Player wins with a 3-card total of 8</td></tr>
 </table>
-<p>This is the commission-free "EZ Baccarat" style spread alongside Sun 7 / Moon 8 side bets found at Atlantic City and Resorts World tables: no 5% rake is taken off Banker wins, but a Banker win by exactly a three-card 7 pushes instead of paying — that forgone win is what funds the 40:1 Sun 7 payout.</p>
+<p>This is the commission-free "EZ Baccarat" style spread alongside Sun 7 / Moon 8 side bets found at Atlantic City and Resorts World tables: no 5% rake is taken off Banker wins, but a Banker win by exactly a three-card 7 pushes instead of paying — that forgone win is what funds the Sun 7 payout.</p>
+<p>House paytables for Sun 7 / Moon 8 vary by casino, so both ratios are adjustable from the <strong>&#9881; settings</strong> button between hands.</p>
 
 <h3>Third-card rule (dealt automatically)</h3>
 <ul>

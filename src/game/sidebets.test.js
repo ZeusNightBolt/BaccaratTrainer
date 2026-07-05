@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { resolveBets, RESULT } from './sidebets.js';
+import { resolveBets, RESULT, DEFAULT_PAYOUTS } from './sidebets.js';
 import { OUTCOME } from './rules.js';
 
 function hand(overrides) {
@@ -48,9 +48,31 @@ test('sun7 pays 40:1 only on banker three-card seven', () => {
   assert.equal(lose.settlement.sun7.returned, 0);
 });
 
-test('moon8 pays 40:1 only on player three-card eight', () => {
+test('moon8 pays 25:1 by default, only on player three-card eight', () => {
+  assert.equal(DEFAULT_PAYOUTS.moon8, 25);
   const win = resolveBets({ moon8: 5 }, hand({ outcome: OUTCOME.PLAYER, playerThreeCardEight: true }));
-  assert.equal(win.settlement.moon8.returned, 205);
+  assert.equal(win.settlement.moon8.returned, 130);
+
+  const lose = resolveBets({ moon8: 5 }, hand({ outcome: OUTCOME.PLAYER, playerThreeCardEight: false }));
+  assert.equal(lose.settlement.moon8.result, RESULT.LOSE);
+});
+
+test('resolveBets accepts custom payout ratios for sun7/moon8', () => {
+  const customPayouts = { ...DEFAULT_PAYOUTS, sun7: 30, moon8: 20 };
+
+  const sun7Win = resolveBets(
+    { sun7: 10 },
+    hand({ outcome: OUTCOME.BANKER, bankerThreeCardSeven: true }),
+    customPayouts
+  );
+  assert.equal(sun7Win.settlement.sun7.returned, 310);
+
+  const moon8Win = resolveBets(
+    { moon8: 10 },
+    hand({ outcome: OUTCOME.PLAYER, playerThreeCardEight: true }),
+    customPayouts
+  );
+  assert.equal(moon8Win.settlement.moon8.returned, 210);
 });
 
 test('pair bets pay 11:1 independent of the main outcome', () => {

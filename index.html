@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
   <title>Baccarat Trainer &mdash; Sun 7 / Moon 8</title>
-  <meta name="description" content="A mini-baccarat trainer that mirrors a real Atlantic City / Resorts World EZ Baccarat table: Player, Banker, Tie, pairs, and the Sun 7 / Moon 8 40:1 side bets, with live Big Road, Bead Plate, Big Eye Boy, Small Road, and Cockroach Road scoreboards." />
+  <meta name="description" content="A mini-baccarat trainer that mirrors a real Atlantic City / Resorts World EZ Baccarat table: Player, Banker, Tie, pairs, and the Sun 7 / Moon 8 side bets with adjustable paytables, plus live Big Road, Bead Plate, Big Eye Boy, Small Road, and Cockroach Road scoreboards." />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='46' fill='%230f4c3a' stroke='%23d4af37' stroke-width='6'/%3E%3Ctext x='50' y='66' font-size='52' text-anchor='middle' fill='%23d4af37' font-family='Georgia, serif'%3E%E2%99%A6%3C/text%3E%3C/svg%3E" />
   <link rel="stylesheet" href="src/styles.css" />
 </head>
@@ -27,6 +27,7 @@
       </div>
       <div class="topbar-actions">
         <button class="icon-btn" id="btn-stats" title="Statistics" aria-label="Statistics">&#128202;</button>
+        <button class="icon-btn" id="btn-settings" title="Payout settings" aria-label="Payout settings">&#9881;</button>
         <button class="icon-btn" id="btn-rules" title="How to play" aria-label="How to play">&#8505;</button>
       </div>
     </header>
@@ -121,14 +122,14 @@
             <button class="bet-spot bet-spot-side bet-spot-moon8" data-spot="moon8">
               <span class="spot-label">&#127772; Moon 8</span>
               <span class="spot-sub">Player wins on 3-card 8</span>
-              <span class="spot-payout">40:1</span>
+              <span class="spot-payout" id="payout-moon8">25:1</span>
               <span class="chip-stack" data-stack="moon8"></span>
               <span class="stake-badge" data-stake="moon8"></span>
             </button>
             <button class="bet-spot bet-spot-side bet-spot-sun7" data-spot="sun7">
               <span class="spot-label">&#9728; Sun 7</span>
               <span class="spot-sub">Banker wins on 3-card 7</span>
-              <span class="spot-payout">40:1</span>
+              <span class="spot-payout" id="payout-sun7">40:1</span>
               <span class="chip-stack" data-stack="sun7"></span>
               <span class="stake-badge" data-stake="sun7"></span>
             </button>
@@ -156,6 +157,38 @@
         <button class="modal-close" id="rules-close" aria-label="Close">&times;</button>
       </div>
       <div class="modal-body" id="rules-body"></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="settings-modal" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+      <div class="modal-head">
+        <h2 id="settings-title">Payout Settings</h2>
+        <button class="modal-close" id="settings-close" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p>House paytables for Sun 7 / Moon 8 vary by casino. Dial in the ratios your table uses &mdash; changes apply starting with the next hand.</p>
+
+        <div class="payout-editor" data-spot="sun7">
+          <div class="payout-editor-head">
+            <span class="spot-label">&#9728; Sun 7</span>
+            <span class="payout-editor-value"><span id="sun7-ratio-display">40</span>:1</span>
+          </div>
+          <input type="range" id="sun7-ratio" min="5" max="100" step="1" value="40" />
+          <div class="payout-presets" id="sun7-presets"></div>
+        </div>
+
+        <div class="payout-editor" data-spot="moon8">
+          <div class="payout-editor-head">
+            <span class="spot-label">&#127772; Moon 8</span>
+            <span class="payout-editor-value"><span id="moon8-ratio-display">25</span>:1</span>
+          </div>
+          <input type="range" id="moon8-ratio" min="5" max="100" step="1" value="25" />
+          <div class="payout-presets" id="moon8-presets"></div>
+        </div>
+
+        <button class="action-btn" id="btn-reset-payouts">Reset to Default (40:1 / 25:1)</button>
+      </div>
     </div>
   </div>
 
