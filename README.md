@@ -16,7 +16,7 @@
 
 ![The table](assets/screenshots/table.png)
 
-Baccarat Dragon Trainer is a browser baccarat table modeled on a real **Atlantic City / Resorts World high-limit salon** — 8-deck commission-free shoe, $100 minimum, $50,000 buy-in — not a textbook diagram. Every detail is built to feel like the electronic pit: a printed felt, clay chips, card-by-card dealing, and the full glowing **road board** with the Chinese "ask" forecast. It runs entirely in the browser with **zero runtime dependencies** and **no build step**.
+Baccarat Dragon Trainer is a browser baccarat table modeled on a real **Atlantic City / Resorts World high-limit salon** — 8-deck commission-free shoe, $100 minimum, $50,000 buy-in — not a textbook diagram. Every detail is built to feel like the electronic pit: a printed felt, clay chips, card-by-card dealing, and the full glowing **road board** with the Chinese "ask" forecast. The whole thing is a fixed 🐉-branded app cabinet — a brushed-metal HUD, an instrument-style shoe gauge, and a bottom betting dock — laid out to fit an **iPhone (Safari) screen** in a compact single view, and it runs entirely in the browser with **zero runtime dependencies** and **no build step**.
 
 ## Three modes
 
