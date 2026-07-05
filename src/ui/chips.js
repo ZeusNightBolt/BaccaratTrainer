@@ -1,7 +1,17 @@
-export const CHIP_VALUES = [5, 25, 100, 500, 1000];
+// High-limit chip denominations ($100 min to match the table minimum).
+export const CHIP_VALUES = [100, 500, 1000, 5000, 25000];
 
 export function formatCurrency(amount) {
   return `$${amount.toLocaleString('en-US')}`;
+}
+
+// Compact chip face label: 100, 500, 1K, 5K, 25K.
+export function chipLabel(value) {
+  if (value >= 1000) {
+    const k = value / 1000;
+    return `${Number.isInteger(k) ? k : k.toFixed(1)}K`;
+  }
+  return String(value);
 }
 
 export function renderChipRail(container, { selectedValue, onSelect }) {
@@ -11,7 +21,7 @@ export function renderChipRail(container, { selectedValue, onSelect }) {
     chip.type = 'button';
     chip.className = `chip${value === selectedValue ? ' selected' : ''}`;
     chip.dataset.value = String(value);
-    chip.textContent = value >= 1000 ? `${value / 1000}K` : value;
+    chip.textContent = chipLabel(value);
     chip.setAttribute('aria-label', `Select ${formatCurrency(value)} chip`);
     chip.addEventListener('click', () => onSelect(value));
     container.appendChild(chip);

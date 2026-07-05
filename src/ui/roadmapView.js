@@ -17,6 +17,8 @@ export class RoadmapView {
   constructor(root) {
     this.beadEl = root.querySelector('#road-bead');
     this.bigEl = root.querySelector('#road-main');
+    this.tickerEl = root.querySelector('#ticker-track');
+    this.forecastEls = Array.from(root.querySelectorAll('.fc-mark'));
     this.boardTop = root.querySelector('.board-top');
     this.derivedEls = {};
     for (const d of DERIVED) this.derivedEls[d.name] = root.querySelector(`#${d.id}`);
@@ -36,7 +38,7 @@ export class RoadmapView {
 
   render(game) {
     const beadCells = beadPlateGrid(
-      game.history.map((r) => ({
+      game.shoeRounds.map((r) => ({
         outcome: OUTCOME_CODE[r.hand.outcome],
         playerPair: r.hand.playerPair,
         bankerPair: r.hand.bankerPair,
@@ -48,6 +50,56 @@ export class RoadmapView {
     for (const d of DERIVED) {
       renderGrid(this.derivedEls[d.name], game.road.derivedRoad(d.name), d.variant);
     }
+
+    this.renderTicker(game.shoeRounds);
+    this.renderForecast(game.road);
+  }
+
+  // The Atlantic City "ask" cells: what each derived road's next mark would be if
+  // the coming result is Player vs Banker. R = red (pattern holds), B = blue (breaks).
+  renderForecast(road) {
+    if (!this.forecastEls.length) return;
+    const preds = { P: road.predict('P'), B: road.predict('B') };
+    const shapeFor = { bigEyeBoy: 'ring', smallRoad: 'dot', cockroachRoad: 'slash' };
+    for (const cell of this.forecastEls) {
+      const side = cell.dataset.if; // 'P' | 'B'
+      const roadName = cell.dataset.road;
+      const mark = preds[side][roadName];
+      cell.className = 'fc-mark';
+      cell.innerHTML = '';
+      if (!mark) {
+        cell.classList.add('fc-empty');
+        cell.textContent = '·';
+        continue;
+      }
+      const dot = document.createElement('i');
+      dot.className = `derived-cell shape-${shapeFor[roadName]} outcome-${mark}`;
+      cell.appendChild(dot);
+    }
+  }
+
+  // A glowing LED strip of the last results (newest on the right), like the
+  // number-history board in an Atlantic City high-limit electronic pit.
+  renderTicker(rounds) {
+    if (!this.tickerEl) return;
+    this.tickerEl.innerHTML = '';
+    const recent = rounds.slice(-18);
+    if (recent.length === 0) {
+      const empty = document.createElement('span');
+      empty.className = 'ticker-empty';
+      empty.textContent = 'No results yet';
+      this.tickerEl.appendChild(empty);
+      return;
+    }
+    recent.forEach((r, i) => {
+      const code = OUTCOME_CODE[r.hand.outcome];
+      const pill = document.createElement('span');
+      pill.className = `ticker-pill tick-${code}`;
+      if (i === recent.length - 1) pill.classList.add('tick-latest');
+      pill.textContent = code === 'TIE' ? 'T' : code;
+      this.tickerEl.appendChild(pill);
+    });
+    this.tickerEl.scrollLeft = this.tickerEl.scrollWidth;
   }
 }
 
