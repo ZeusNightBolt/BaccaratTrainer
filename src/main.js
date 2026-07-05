@@ -4,10 +4,12 @@ import { RoadmapView } from './ui/roadmapView.js';
 import { renderChipRail, formatCurrency, CHIP_VALUES } from './ui/chips.js';
 import { RULES_HTML } from './ui/rulesContent.js';
 import { PayoutSettingsView } from './ui/payoutSettings.js';
+import { RoadGenieView } from './ui/roadGenieView.js';
 
 const game = new GameState();
 const table = new TableView(document.getElementById('app'));
 const roadmap = new RoadmapView(document.getElementById('scoreboard'));
+const genie = new RoadGenieView(document.getElementById('app'), game);
 
 let selectedChip = CHIP_VALUES[1]; // default to $25
 
@@ -143,6 +145,7 @@ el.btnDeal.addEventListener('click', async () => {
   table.showResult(round);
   refreshStats();
   roadmap.render(game);
+  genie.render();
 
   if (game.bankroll <= 0) {
     game.bankroll = STARTING_BANKROLL;

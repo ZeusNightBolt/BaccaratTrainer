@@ -6,6 +6,9 @@
   <title>Baccarat Trainer &mdash; Sun 7 / Moon 8</title>
   <meta name="description" content="A mini-baccarat trainer that mirrors a real Atlantic City / Resorts World EZ Baccarat table: Player, Banker, Tie, pairs, and the Sun 7 / Moon 8 side bets with adjustable paytables, plus live Big Road, Bead Plate, Big Eye Boy, Small Road, and Cockroach Road scoreboards." />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='46' fill='%230f4c3a' stroke='%23d4af37' stroke-width='6'/%3E%3Ctext x='50' y='66' font-size='52' text-anchor='middle' fill='%23d4af37' font-family='Georgia, serif'%3E%E2%99%A6%3C/text%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Fraunces:opsz,wght@9..144,600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="src/styles.css" />
 </head>
 <body>
@@ -84,14 +87,18 @@
         <div class="betting-layout" id="betting-layout">
           <div class="corner-row">
             <button class="bet-spot bet-spot-pair" data-spot="playerPair">
-              <span class="spot-label">Player Pair</span>
-              <span class="spot-payout">11:1</span>
+              <span class="spot-top">
+                <span class="spot-label">Player Pair</span>
+                <span class="spot-payout">11:1</span>
+              </span>
               <span class="chip-stack" data-stack="playerPair"></span>
               <span class="stake-badge" data-stake="playerPair"></span>
             </button>
             <button class="bet-spot bet-spot-pair" data-spot="bankerPair">
-              <span class="spot-label">Banker Pair</span>
-              <span class="spot-payout">11:1</span>
+              <span class="spot-top">
+                <span class="spot-label">Banker Pair</span>
+                <span class="spot-payout">11:1</span>
+              </span>
               <span class="chip-stack" data-stack="bankerPair"></span>
               <span class="stake-badge" data-stake="bankerPair"></span>
             </button>
@@ -120,16 +127,20 @@
 
           <div class="side-row">
             <button class="bet-spot bet-spot-side bet-spot-moon8" data-spot="moon8">
-              <span class="spot-label">&#127772; Moon 8</span>
+              <span class="spot-top">
+                <span class="spot-label">&#127772; Moon 8</span>
+                <span class="spot-payout" id="payout-moon8">25:1</span>
+              </span>
               <span class="spot-sub">Player wins on 3-card 8</span>
-              <span class="spot-payout" id="payout-moon8">25:1</span>
               <span class="chip-stack" data-stack="moon8"></span>
               <span class="stake-badge" data-stake="moon8"></span>
             </button>
             <button class="bet-spot bet-spot-side bet-spot-sun7" data-spot="sun7">
-              <span class="spot-label">&#9728; Sun 7</span>
+              <span class="spot-top">
+                <span class="spot-label">&#9728; Sun 7</span>
+                <span class="spot-payout" id="payout-sun7">40:1</span>
+              </span>
               <span class="spot-sub">Banker wins on 3-card 7</span>
-              <span class="spot-payout" id="payout-sun7">40:1</span>
               <span class="chip-stack" data-stack="sun7"></span>
               <span class="stake-badge" data-stake="sun7"></span>
             </button>
@@ -148,6 +159,21 @@
         <button class="action-btn action-btn-primary" id="btn-deal">Deal</button>
       </div>
     </footer>
+
+    <div class="genie" id="genie">
+      <button class="genie-orb" id="genie-orb" aria-expanded="false" aria-controls="genie-panel" title="Road Genie">
+        <span class="genie-orb-icon">&#128302;</span>
+        <span class="genie-orb-pulse"></span>
+      </button>
+      <div class="genie-panel" id="genie-panel" hidden>
+        <div class="genie-head">
+          <span class="genie-name">Road Genie</span>
+          <button class="modal-close" id="genie-close" aria-label="Close">&times;</button>
+        </div>
+        <div class="genie-body" id="genie-body"></div>
+        <div class="genie-foot">Folk pattern-reading for fun &mdash; every hand is an independent draw.</div>
+      </div>
+    </div>
   </div>
 
   <div class="modal-overlay" id="rules-modal" hidden>
