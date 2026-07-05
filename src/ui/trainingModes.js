@@ -43,7 +43,8 @@ export class TrainingModes {
     });
     this.drillNextBtn.addEventListener('click', () => this.nextDrillQuestion());
 
-    this.app.dataset.mode = 'play';
+    // Coach Me is the primary mode — open its rail on load.
+    this.setMode('coach');
   }
 
   setMode(mode) {
@@ -92,7 +93,7 @@ export class TrainingModes {
 
     this.coachLine.textContent = reading.lines[0] || 'Not enough of the shoe to read yet.';
 
-    const conf = s ? (s.action === 'follow' ? 3 : 2) : 1;
+    const conf = s ? s.confidence || 1 : 1;
     this.coachConf.innerHTML = '';
     for (let i = 0; i < 3; i += 1) {
       const pip = document.createElement('i');

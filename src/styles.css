@@ -73,8 +73,8 @@
   --r-sm: 9px;
 
   /* Road cell sizes */
-  --cell-main: 20px;
-  --cell-derived: 10px;
+  --cell-main: 18px;
+  --cell-derived: 9px;
 
   /* Type */
   --font-display: 'Fraunces', 'New York', 'Iowan Old Style', Palatino, Georgia, serif;
@@ -182,8 +182,11 @@ button {
 .hud-logo {
   width: 30px;
   height: 30px;
-  display: block;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.6));
+  display: grid;
+  place-items: center;
+  font-size: 24px;
+  line-height: 1;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.6));
 }
 .hud-word {
   display: flex;
@@ -633,8 +636,8 @@ button {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 10px;
-  padding: 6px 8px;
+  margin-bottom: 8px;
+  padding: 5px 8px;
   border-radius: 10px;
   background: radial-gradient(120% 180% at 50% -40%, rgba(46, 155, 255, 0.05), transparent 60%), #03040a;
   border: 1px solid rgba(0, 0, 0, 0.6);
@@ -1073,8 +1076,8 @@ button {
 
 /* Forecast — the AC "ask" cells: next mark if Player vs Banker */
 .forecast {
-  margin-top: 9px;
-  padding: 8px 11px 9px;
+  margin-top: 7px;
+  padding: 6px 11px 7px;
   border-radius: 10px;
   background: radial-gradient(120% 180% at 50% -40%, rgba(46, 155, 255, 0.05), transparent 60%), #03040a;
   border: 1px solid rgba(0, 0, 0, 0.6);
@@ -1147,12 +1150,12 @@ button {
 .felt {
   flex: 0 0 auto;
   position: relative;
-  border-radius: 26px;
-  padding: 12px 12px 22px;
+  border-radius: 24px;
+  padding: 10px 11px 18px;
   isolation: isolate;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 9px;
   border: 1px solid #000;
   background:
     radial-gradient(140% 78% at 50% -18%, rgba(255, 240, 200, 0.1) 0%, transparent 42%),
@@ -1230,7 +1233,7 @@ button {
   align-items: flex-start;
   justify-content: space-between;
   gap: 10px;
-  min-height: 96px;
+  min-height: 72px;
 }
 
 .hand {
@@ -1264,14 +1267,14 @@ button {
 
 .card-slots {
   display: flex;
-  gap: 4px;
-  min-height: 74px;
+  gap: 3px;
+  min-height: 64px;
 }
 
 /* ---------- Cards ---------- */
 .playing-card {
-  width: 48px;
-  height: 68px;
+  width: 42px;
+  height: 60px;
   perspective: 900px;
   animation: dealIn 0.34s var(--ease-deal) both;
 }
@@ -1422,14 +1425,14 @@ button {
 .betting-layout {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
 .corner-row,
 .main-row,
 .side-row {
   display: grid;
-  gap: 8px;
+  gap: 6px;
 }
 
 .corner-row {
@@ -1488,8 +1491,8 @@ button {
 }
 
 .bet-spot-main {
-  min-height: 84px;
-  border-radius: 20px / 26px;
+  min-height: 66px;
+  border-radius: 18px / 22px;
 }
 
 .bet-spot-player {
@@ -1503,7 +1506,7 @@ button {
 .bet-spot-tie {
   --spot-ink: #6fe6a3;
   --spot-wash: rgba(52, 209, 127, 0.14);
-  min-height: 60px;
+  min-height: 50px;
   align-self: center;
 }
 .bet-spot-player,
@@ -1645,9 +1648,9 @@ button {
 
 /* Player / Banker Bonus (Dragon Bonus) */
 .bet-spot-bonus {
-  min-height: 50px;
-  padding: 7px 12px 8px;
-  border-radius: 14px;
+  min-height: 42px;
+  padding: 5px 12px 6px;
+  border-radius: 13px;
   display: grid;
   grid-template-columns: 1fr auto;
   grid-template-areas: 'head max' 'ladder ladder';
@@ -1732,13 +1735,13 @@ button {
 
 /* Side bets — celestial enamel medallions */
 .bet-spot-side {
-  min-height: 48px;
+  min-height: 42px;
   display: grid;
-  grid-template-columns: 34px 1fr;
+  grid-template-columns: 30px 1fr;
   align-items: center;
-  gap: 9px;
-  padding: 6px 10px 6px 8px;
-  border-radius: 16px;
+  gap: 8px;
+  padding: 5px 10px 5px 7px;
+  border-radius: 15px;
 }
 .bet-spot-moon8 {
   --spot-ink: #9ab4ff;
@@ -1750,8 +1753,8 @@ button {
 }
 
 .side-emblem {
-  width: 34px;
-  height: 34px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   display: grid;
   place-items: center;
@@ -2727,6 +2730,20 @@ button {
   .mode {
     padding: 0 10px;
     gap: 4px;
+  }
+  /* Cap the board so the felt and its main bets stay in view; the board's lower
+     roads scroll within their own panel on a phone. */
+  .scoreboard {
+    max-height: 39vh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: none;
+  }
+  .scoreboard::-webkit-scrollbar {
+    display: none;
+  }
+  .coach-rail {
+    padding: 6px 12px;
   }
 }
 @media (max-width: 360px) {

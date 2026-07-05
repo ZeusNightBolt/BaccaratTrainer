@@ -22,8 +22,8 @@ Baccarat Dragon Trainer is a browser baccarat table modeled on a real **Atlantic
 
 | Mode | What it does |
 | --- | --- |
+| **◈ Coach Me** (default) | A persistent coaching rail. It doesn't just count streaks — it reads the whole sequence of Big Road column lengths for a repeating **rhythm** (a ping-pong 1-1-1-1, a double-chop 2-2-2, an alternating 3-4-3-4, a 2-2-3-3 cycle…) and works out where the current column sits inside it, then calls **Follow** or **Fade** with a confidence read, cross-checks the three derived roads, and pulses a gold ring on the advised spot. When it fades a mature rhythm it tells you to size down. |
 | **▦ Play** | The table, straight up. Buy in, place chips, deal, and watch the roads and your bankroll move. |
-| **◈ Coach Me** | A persistent coaching rail reads the Big Road and the three derived roads every hand and calls **Follow** or **Fade** — with a confidence read and a gold pulse on the recommended spot. When it fades a mature chop pattern it tells you to size down. |
 | **◎ Drill** | A focused road-reading practice loop. The board grows hand by hand and quizzes you — *"Next hand Banker — what mark shows on the Small Road?"* — scoring your accuracy and streak. Powered by the same forecast engine a real board uses. |
 
 ## The board — a real Atlantic City electronic display

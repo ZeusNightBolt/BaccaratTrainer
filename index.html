@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
   <title>Baccarat Trainer &mdash; Sun 7 / Moon 8</title>
   <meta name="description" content="A mini-baccarat trainer that mirrors a real Atlantic City / Resorts World EZ Baccarat table: Player, Banker, Tie, pairs, and the Sun 7 / Moon 8 side bets with adjustable paytables, plus live Big Road, Bead Plate, Big Eye Boy, Small Road, and Cockroach Road scoreboards." />
-  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%2064%2064%22%3E%3Ccircle%20cx=%2232%22%20cy=%2232%22%20r=%2231%22%20fill=%22%230c1016%22/%3E%3Ccircle%20cx=%2232%22%20cy=%2232%22%20r=%2230%22%20fill=%22none%22%20stroke=%22%23e6c66e%22%20stroke-width=%223%22/%3E%3Cg%20fill=%22%23e6c66e%22%20transform=%22translate(6%208)%20scale(0.82)%22%3E%3Cpath%20d=%22M25%2015%20L15%202%20L21%206%20L19%200%20L27%2012%20Z%22/%3E%3Cpath%20d=%22M31%2014%20L31%201%20L37%2011%20Z%22/%3E%3Cpath%20d=%22M24%2014%20C%2032%2011%2038%2012%2043%2017%20C%2048%2020%2054%2021%2060%2020%20C%2062%2020%2062%2023%2060%2024%20C%2056%2025%2052%2025%2048%2024%20L%2053%2029%20C%2048%2030%2043%2029%2040%2026%20C%2041%2031%2045%2034%2050%2034%20C%2046%2038%2039%2038%2035%2033%20C%2037%2039%2034%2045%2029%2047%20C%2031%2041%2028%2038%2023%2039%20C%2017%2040%2013%2045%2011%2051%20C%209%2042%2011%2033%2016%2026%20C%2012%2026%209%2028%207%2032%20C%209%2023%2015%2017%2024%2014%20Z%22/%3E%3Cpath%20d=%22M14%2027%20L5%2025%20L16%2023%20Z%22/%3E%3Cpath%20d=%22M11%2037%20L3%2038%20L14%2033%20Z%22/%3E%3Cpath%20d=%22M60%2022%20C%2064%2024%2064%2029%2060%2032%20C%2061%2028%2059%2026%2056%2026%20Z%22/%3E%3C/g%3E%3Ccircle%20cx=%2232%22%20cy=%2225%22%20r=%222%22%20fill=%22%230c1016%22/%3E%3C/svg%3E" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%3E%3Ctext%20y='.9em'%20font-size='58'%3E%F0%9F%90%89%3C/text%3E%3C/svg%3E" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Fraunces:opsz,wght@9..144,600&display=swap" rel="stylesheet" />
@@ -15,25 +15,13 @@
   <div class="app" id="app">
     <header class="hud">
       <a class="hud-brand" href="#" aria-label="Baccarat Dragon Trainer">
-        <svg class="hud-logo" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Baccarat Dragon">
-          <circle cx="32" cy="32" r="31" fill="#0c1016" />
-          <circle cx="32" cy="32" r="30" fill="none" stroke="#e6c66e" stroke-width="3" />
-          <g fill="#e6c66e" transform="translate(6 8) scale(0.82)">
-            <path d="M25 15 L15 2 L21 6 L19 0 L27 12 Z" />
-            <path d="M31 14 L31 1 L37 11 Z" />
-            <path d="M24 14 C 32 11 38 12 43 17 C 48 20 54 21 60 20 C 62 20 62 23 60 24 C 56 25 52 25 48 24 L 53 29 C 48 30 43 29 40 26 C 41 31 45 34 50 34 C 46 38 39 38 35 33 C 37 39 34 45 29 47 C 31 41 28 38 23 39 C 17 40 13 45 11 51 C 9 42 11 33 16 26 C 12 26 9 28 7 32 C 9 23 15 17 24 14 Z" />
-            <path d="M14 27 L5 25 L16 23 Z" />
-            <path d="M11 37 L3 38 L14 33 Z" />
-            <path d="M60 22 C 64 24 64 29 60 32 C 61 28 59 26 56 26 Z" />
-          </g>
-          <circle cx="32" cy="25" r="2" fill="#0c1016" />
-        </svg>
+        <span class="hud-logo" role="img" aria-label="Dragon">&#128009;</span>
         <span class="hud-word"><b>BACCARAT</b><i>DRAGON&nbsp;TRAINER</i></span>
       </a>
 
       <nav class="mode-switch" role="tablist" aria-label="Training mode">
-        <button class="mode active" role="tab" aria-selected="true" data-mode="play"><span class="mode-i">&#9638;</span><span class="mode-t">Play</span></button>
-        <button class="mode mode-coach" role="tab" aria-selected="false" data-mode="coach"><span class="mode-led"></span><span class="mode-i">&#9672;</span><span class="mode-t">Coach&nbsp;Me</span></button>
+        <button class="mode mode-coach active" role="tab" aria-selected="true" data-mode="coach"><span class="mode-led"></span><span class="mode-i">&#9672;</span><span class="mode-t">Coach&nbsp;Me</span></button>
+        <button class="mode" role="tab" aria-selected="false" data-mode="play"><span class="mode-i">&#9638;</span><span class="mode-t">Play</span></button>
         <button class="mode mode-drill" role="tab" aria-selected="false" data-mode="drill"><span class="mode-led"></span><span class="mode-i">&#9673;</span><span class="mode-t">Drill</span></button>
       </nav>
 
