@@ -61,7 +61,7 @@ function refreshChipRail() {
 
 function refreshStats() {
   el.bankroll.textContent = formatCurrency(game.bankroll);
-  el.shoe.textContent = `#${game.shoeNumber} · Hand ${game.history.length}`;
+  el.shoe.textContent = `#${game.shoeNumber} · ${game.history.length}h`;
   el.penetration.style.width = `${Math.min(100, Math.round(game.shoe.penetration() * 100))}%`;
 }
 
