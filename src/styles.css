@@ -1,21 +1,27 @@
 /* ============================================================
    Baccarat Trainer — 2026 visual system
+   Printed felt + Atlantic City electronic board
    ============================================================ */
 :root {
   color-scheme: dark;
 
   /* Surfaces */
   --bg: #06080c;
-  --bg-2: #0a0d13;
   --surface: rgba(255, 255, 255, 0.045);
   --surface-2: rgba(255, 255, 255, 0.07);
   --hairline: rgba(255, 255, 255, 0.09);
   --hairline-strong: rgba(255, 255, 255, 0.16);
 
-  /* Felt */
-  --felt-0: #0f5b43;
-  --felt-1: #0b4535;
-  --felt-2: #072a21;
+  /* Felt — cooler, deeper teal-green, lit from top-center */
+  --felt-hi: #146b4e;
+  --felt-mid: #0c4d39;
+  --felt-low: #06301f;
+
+  /* Printed inlays */
+  --print-white: #eef3ec;
+  --print-dim: rgba(238, 243, 236, 0.42);
+  --gold-inlay: #d8b45a;
+  --gold-inlay-hi: #f4dd97;
 
   /* Ink */
   --ink: #f4f6f8;
@@ -25,13 +31,29 @@
   /* Accents */
   --gold: #e6c66e;
   --gold-2: #c9a94f;
+
+  /* Bet colours + coin ramps */
   --player: #4f9dff;
-  --player-deep: #1f5fd0;
+  --player-deep: #114fb8;
+  --player-hi: #8cc0ff;
   --banker: #ff5b52;
-  --banker-deep: #cc352c;
+  --banker-deep: #b81f16;
+  --banker-hi: #ff8c82;
   --tie: #34d17f;
+  --tie-deep: #0f8f4d;
+  --tie-hi: #7cf0b4;
   --win: #34d17f;
   --danger: #ff6a5c;
+
+  /* Derived-road red/blue (regular vs choppy — a system distinct from bet coins) */
+  --road-red: #e8443b;
+  --road-blue: #3d86f0;
+
+  /* Scorecard surface */
+  --card-bg: #0c1016;
+  --card-grid: rgba(255, 255, 255, 0.055);
+  --card-grid-str: rgba(255, 255, 255, 0.11);
+  --card-edge: rgba(255, 255, 255, 0.1);
 
   /* Elevation */
   --sh-1: 0 1px 2px rgba(0, 0, 0, 0.4);
@@ -45,13 +67,19 @@
   --r-md: 13px;
   --r-sm: 9px;
 
+  /* Road cell sizes */
+  --cell-main: 24px;
+  --cell-derived: 12px;
+
   /* Type */
-  --font-display: 'Fraunces', Georgia, serif;
-  --font-ui: 'Manrope', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Fraunces', 'New York', 'Iowan Old Style', Palatino, Georgia, serif;
+  --font-ui: 'Manrope', system-ui, -apple-system, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif;
 
   /* Motion */
   --spring: cubic-bezier(0.34, 1.4, 0.5, 1);
   --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-deal: cubic-bezier(0.16, 0.84, 0.24, 1);
+  --ease-flip: cubic-bezier(0.22, 1.15, 0.35, 1);
 }
 
 * {
@@ -96,7 +124,7 @@ button {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  max-width: 620px;
+  max-width: 640px;
   margin: 0 auto;
   position: relative;
 }
@@ -175,10 +203,18 @@ button {
   color: var(--ink);
   font-size: 0.82rem;
   white-space: nowrap;
+  transition: color 0.3s var(--ease);
 }
 
 #stat-bankroll {
   color: var(--gold);
+}
+
+#stat-bankroll.flash-up {
+  color: var(--win);
+}
+#stat-bankroll.flash-down {
+  color: var(--danger);
 }
 
 .topbar-actions {
@@ -238,13 +274,17 @@ button {
   width: 100%;
 }
 
-/* ---------- Scoreboard ---------- */
+/* ============================================================
+   SCOREBOARD — Atlantic City electronic board
+   ============================================================ */
 .scoreboard {
-  background: linear-gradient(180deg, var(--surface), rgba(255, 255, 255, 0.015));
-  border: 1px solid var(--hairline);
+  padding: 12px;
   border-radius: var(--r-lg);
-  padding: 11px 12px 12px;
-  box-shadow: var(--sh-2);
+  border: 1px solid var(--hairline);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.012));
+  box-shadow: var(--sh-2), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(8px) saturate(1.1);
+  -webkit-backdrop-filter: blur(8px) saturate(1.1);
 }
 
 .scoreboard-header {
@@ -257,7 +297,7 @@ button {
 }
 
 .scoreboard-tabs {
-  display: inline-flex;
+  display: none;
   gap: 3px;
   padding: 3px;
   background: rgba(0, 0, 0, 0.28);
@@ -284,38 +324,99 @@ button {
 
 .road-legend {
   display: flex;
-  gap: 11px;
-  font-size: 0.68rem;
+  align-items: center;
+  gap: 9px;
+  font-size: 0.64rem;
   color: var(--ink-dim);
   font-weight: 600;
+  flex-wrap: wrap;
 }
 
 .road-legend span {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
 }
 
-.dot {
-  width: 9px;
-  height: 9px;
+.lg {
+  width: 11px;
+  height: 11px;
+  display: inline-block;
+  position: relative;
+  flex-shrink: 0;
+}
+.lg-coin {
   border-radius: 50%;
+}
+.lg-coin.banker {
+  background: var(--banker);
+}
+.lg-coin.player {
+  background: var(--player);
+}
+.lg-coin.tie {
+  background: var(--tie);
+}
+.lg-ring {
+  border-radius: 50%;
+  border: 1.6px solid var(--road-blue);
+}
+.lg-dot::before {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  border-radius: 50%;
+  background: var(--road-blue);
+}
+.lg-slash::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 1px;
+  right: 1px;
+  height: 2px;
+  background: var(--road-red);
+  transform: rotate(45deg);
+}
+.lg-sep {
+  width: 1px;
+  height: 12px;
+  background: var(--hairline);
   display: inline-block;
 }
 
-.dot-banker {
-  background: var(--banker);
-}
-.dot-player {
-  background: var(--player);
-}
-.dot-tie {
-  background: var(--tie);
+/* Board decks */
+.board-top {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 10px;
+  margin-bottom: 10px;
 }
 
-/* Authentic grid-lined scorecard */
-.road-main {
-  --cell: 25px;
+.road-pane {
+  position: relative;
+  min-width: 0;
+}
+
+.road-title {
+  display: block;
+  margin: 0 0 5px 2px;
+  font-size: 0.56rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+}
+
+.road-title em {
+  font-style: normal;
+  opacity: 0.65;
+  margin-left: 3px;
+}
+
+/* Scorecard surface (shared by every grid) */
+.road-grid {
+  --cell: var(--cell-main);
   display: grid;
   grid-template-rows: repeat(6, var(--cell));
   grid-auto-columns: var(--cell);
@@ -323,56 +424,84 @@ button {
   height: calc(6 * var(--cell));
   overflow-x: auto;
   overflow-y: hidden;
+  background-color: var(--card-bg);
   background-image:
-    linear-gradient(var(--hairline) 1px, transparent 1px),
-    linear-gradient(90deg, var(--hairline) 1px, transparent 1px);
-  background-size: var(--cell) var(--cell);
-  background-position: 0 0;
-  border: 1px solid var(--hairline);
+    linear-gradient(var(--card-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--card-grid) 1px, transparent 1px),
+    linear-gradient(var(--card-grid-str) 1px, transparent 1px),
+    linear-gradient(90deg, var(--card-grid-str) 1px, transparent 1px);
+  background-size:
+    var(--cell) var(--cell),
+    var(--cell) var(--cell),
+    calc(var(--cell) * 6) calc(var(--cell) * 6),
+    calc(var(--cell) * 6) calc(var(--cell) * 6);
+  border: 1px solid var(--card-edge);
   border-radius: 10px;
-  background-color: rgba(0, 0, 0, 0.22);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
+  scrollbar-width: none;
+}
+.road-grid::-webkit-scrollbar {
+  display: none;
 }
 
-.road-cell {
+.bead-pane .road-grid {
+  /* Bead plate sized to ~9 columns so it reads as the classic left block */
+  width: calc(9 * var(--cell-main));
+  max-width: 46vw;
+}
+
+.derived-grid {
+  --cell: var(--cell-derived);
+}
+
+/* --- Markers --- */
+.road-cell,
+.derived-cell {
+  position: relative;
   width: var(--cell);
   height: var(--cell);
-  position: relative;
   display: grid;
   place-items: center;
 }
 
-.road-cell::before {
+/* Big Road — hollow rings, red banker / blue player */
+.road-cell.shape-bigroad::before {
   content: '';
-  width: 68%;
-  height: 68%;
+  width: 70%;
+  height: 70%;
   border-radius: 50%;
   box-sizing: border-box;
+  background: transparent;
+  border: 2.5px solid currentColor;
+  box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.35);
 }
-
-.road-cell.outcome-B::before {
-  border: 2.5px solid var(--banker);
+.road-cell.shape-bigroad.outcome-B {
+  color: var(--banker);
 }
-.road-cell.outcome-P::before {
-  border: 2.5px solid var(--player);
+.road-cell.shape-bigroad.outcome-P {
+  color: var(--player);
 }
-.road-cell.outcome-TIE::before {
-  background: var(--tie);
-}
-
-/* Bead plate: solid filled coins with a letter */
-.road-cell.is-bead::before {
-  width: 76%;
-  height: 76%;
+.road-cell.shape-bigroad.outcome-TIE::before {
   border: none;
+  background: radial-gradient(circle at 40% 32%, var(--tie-hi), var(--tie) 55%, var(--tie-deep));
 }
-.road-cell.is-bead.outcome-B::before {
-  background: radial-gradient(circle at 40% 32%, #ff8078, var(--banker-deep));
+
+/* Bead Plate — solid glossy coins + letter */
+.road-cell.shape-beadplate::before {
+  content: '';
+  width: 80%;
+  height: 80%;
+  border-radius: 50%;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.35), 0 1px 2px rgba(0, 0, 0, 0.55);
 }
-.road-cell.is-bead.outcome-P::before {
-  background: radial-gradient(circle at 40% 32%, #7fbaff, var(--player-deep));
+.road-cell.shape-beadplate.outcome-B::before {
+  background: radial-gradient(circle at 38% 30%, var(--banker-hi), var(--banker) 45%, var(--banker-deep));
 }
-.road-cell.is-bead.outcome-TIE::before {
-  background: radial-gradient(circle at 40% 32%, #6fe8a8, #189a5b);
+.road-cell.shape-beadplate.outcome-P::before {
+  background: radial-gradient(circle at 38% 30%, var(--player-hi), var(--player) 45%, var(--player-deep));
+}
+.road-cell.shape-beadplate.outcome-TIE::before {
+  background: radial-gradient(circle at 38% 30%, var(--tie-hi), var(--tie) 45%, var(--tie-deep));
 }
 
 .bead-letter {
@@ -382,27 +511,67 @@ button {
   place-items: center;
   font-size: 0.6rem;
   font-weight: 800;
-  color: #fff;
+  color: rgba(255, 255, 255, 0.92);
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
   z-index: 2;
 }
 
+/* Derived — Big Eye Boy = ring */
+.derived-cell.shape-ring::before {
+  content: '';
+  width: 66%;
+  height: 66%;
+  border-radius: 50%;
+  box-sizing: border-box;
+  background: transparent;
+  border: 1.6px solid currentColor;
+}
+/* Small Road = solid dot */
+.derived-cell.shape-dot::before {
+  content: '';
+  width: 60%;
+  height: 60%;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 38% 32%, rgba(255, 255, 255, 0.5), transparent 55%),
+    currentColor;
+}
+/* Cockroach = diagonal slash */
+.derived-cell.shape-slash::before {
+  content: '';
+  width: 80%;
+  height: 2.2px;
+  border-radius: 2px;
+  background: currentColor;
+  transform: rotate(45deg);
+}
+.derived-cell.outcome-R {
+  color: var(--road-red);
+}
+.derived-cell.outcome-B {
+  color: var(--road-blue);
+}
+
+/* Overlays (Big Road only) */
 .tie-mark {
   position: absolute;
-  width: 78%;
+  width: 80%;
   height: 2px;
+  border-radius: 2px;
   background: var(--tie);
   transform: rotate(-45deg);
   z-index: 3;
-  border-radius: 2px;
+  box-shadow: 0 0 3px rgba(52, 209, 127, 0.6);
 }
 
 .tie-count {
   position: absolute;
-  right: 0;
-  bottom: 0;
+  right: -1px;
+  bottom: -1px;
   font-size: 0.46rem;
   font-weight: 800;
   color: var(--tie);
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.7);
   z-index: 4;
 }
 
@@ -412,111 +581,148 @@ button {
   height: 5px;
   border-radius: 50%;
   z-index: 4;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.5);
 }
-
-.pair-dot.player {
+.pair-dot.banker {
   top: 2px;
   left: 2px;
-  background: var(--player);
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4);
+  background: var(--banker);
 }
-
-.pair-dot.banker {
+.pair-dot.player {
   bottom: 2px;
   right: 2px;
-  background: var(--banker);
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4);
+  background: var(--player);
 }
 
-/* Derived roads */
+/* Latest-result gold pulse */
+.is-latest::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px var(--gold), 0 0 8px 1px rgba(230, 198, 110, 0.6);
+  animation: latestPulse 1.6s var(--ease) infinite;
+  pointer-events: none;
+}
+#road-cockroach .is-latest::after {
+  border-radius: 3px;
+}
+@keyframes latestPulse {
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: scale(0.9);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+}
+
+/* Derived roads row */
 .derived-roads {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 8px;
-  margin-top: 10px;
 }
 
 .derived-road {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 4px;
+  min-width: 0;
 }
 
 .derived-label {
-  font-size: 0.58rem;
+  font-size: 0.56rem;
   color: var(--ink-mute);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   font-weight: 700;
 }
 
-.derived-grid {
-  --cell: 11px;
-  display: grid;
-  grid-template-rows: repeat(6, var(--cell));
-  grid-auto-columns: var(--cell);
-  grid-auto-flow: column;
-  height: calc(6 * var(--cell));
-  overflow-x: auto;
-  overflow-y: hidden;
-  background-image:
-    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-  background-size: var(--cell) var(--cell);
-  border: 1px solid var(--hairline);
-  border-radius: 7px;
-  background-color: rgba(0, 0, 0, 0.22);
-}
-
-.derived-cell {
-  width: var(--cell);
-  height: var(--cell);
-  display: grid;
-  place-items: center;
-}
-
-.derived-cell::before {
-  content: '';
-  width: 64%;
-  height: 64%;
-  border-radius: 50%;
-  box-sizing: border-box;
-}
-
-.derived-cell.outcome-R::before {
-  border: 1.5px solid var(--banker);
-}
-.derived-cell.outcome-B::before {
-  border: 1.5px solid var(--player);
-}
-
-/* ---------- Felt / table ---------- */
+/* ============================================================
+   FELT — printed AC / Resorts World mini-bac table
+   ============================================================ */
 .felt {
   flex: 1;
   position: relative;
-  border-radius: var(--r-xl);
-  padding: 14px 12px 34px;
+  border-radius: 30px;
+  padding: 16px 14px 40px;
+  isolation: isolate;
   display: flex;
   flex-direction: column;
   gap: 12px;
+  border: 1px solid #000;
   background:
-    radial-gradient(130% 100% at 50% -12%, var(--felt-0), var(--felt-1) 52%, var(--felt-2) 100%);
+    radial-gradient(140% 78% at 50% -18%, rgba(255, 240, 200, 0.1) 0%, transparent 42%),
+    radial-gradient(155% 130% at 50% 0%, var(--felt-hi) 0%, var(--felt-mid) 46%, var(--felt-low) 100%),
+    var(--felt-mid);
   box-shadow:
-    inset 0 0 0 1px rgba(230, 198, 110, 0.14),
-    inset 0 0 90px rgba(0, 0, 0, 0.45),
-    var(--sh-3);
-  border: 1px solid rgba(0, 0, 0, 0.5);
+    inset 0 2px 0 rgba(255, 255, 255, 0.05),
+    inset 0 0 0 6px rgba(0, 0, 0, 0.55),
+    inset 0 0 0 7px rgba(216, 180, 90, 0.22),
+    inset 0 30px 60px rgba(0, 0, 0, 0.3),
+    inset 0 -40px 90px rgba(0, 0, 0, 0.55),
+    0 20px 60px rgba(0, 0, 0, 0.6);
   overflow: hidden;
 }
 
+/* Woven micro-texture, faded toward the lit crown */
 .felt::before {
-  /* fine felt texture + inlay ring */
   content: '';
   position: absolute;
-  inset: 7px;
-  border-radius: calc(var(--r-xl) - 7px);
-  border: 1px solid rgba(230, 198, 110, 0.16);
+  inset: 0;
+  z-index: -1;
+  background:
+    repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.05) 0 1px, transparent 1px 2px),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.022) 0 1px, transparent 1px 2px),
+    repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.03) 0 1px, transparent 1px 3px);
+  -webkit-mask-image: radial-gradient(130% 100% at 50% 0%, #000 30%, rgba(0, 0, 0, 0.5) 100%);
+  mask-image: radial-gradient(130% 100% at 50% 0%, #000 30%, rgba(0, 0, 0, 0.5) 100%);
   pointer-events: none;
+}
+
+/* Printed layout arc */
+.felt-print {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.6;
+}
+.felt-print .arc-text {
+  letter-spacing: 5px;
+}
+.felt-print .arc-shadow {
+  fill: none;
+  stroke: #0a2f22;
+  stroke-width: 6;
+}
+.felt-print .arc-gold {
+  fill: none;
+  stroke: var(--gold-inlay);
+  stroke-width: 1.5;
+}
+.felt-print .arc-white {
+  fill: none;
+  stroke: var(--print-dim);
+  stroke-width: 1;
+}
+.felt-print .arc-text {
+  fill: var(--print-dim);
+  font-family: var(--font-ui);
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+.hand-zone,
+.betting-layout {
+  position: relative;
+  z-index: 2;
 }
 
 .hand-zone {
@@ -524,9 +730,7 @@ button {
   align-items: flex-start;
   justify-content: space-between;
   gap: 10px;
-  min-height: 116px;
-  position: relative;
-  z-index: 1;
+  min-height: 118px;
 }
 
 .hand {
@@ -545,17 +749,17 @@ button {
   font-size: 0.66rem;
   padding: 3px 12px;
   border-radius: 99px;
-  background: rgba(0, 0, 0, 0.22);
+  background: rgba(0, 0, 0, 0.24);
 }
 
 .player-hand .hand-label {
   color: #a7c9ff;
-  box-shadow: inset 0 0 0 1px rgba(79, 157, 255, 0.35);
+  box-shadow: inset 0 0 0 1px rgba(79, 157, 255, 0.4);
 }
 
 .banker-hand .hand-label {
   color: #ffb3ad;
-  box-shadow: inset 0 0 0 1px rgba(255, 91, 82, 0.35);
+  box-shadow: inset 0 0 0 1px rgba(255, 91, 82, 0.4);
 }
 
 .card-slots {
@@ -564,11 +768,26 @@ button {
   min-height: 74px;
 }
 
+/* ---------- Cards ---------- */
 .playing-card {
-  width: 46px;
-  height: 66px;
-  perspective: 640px;
-  animation: dealIn 0.4s var(--spring) forwards;
+  width: 48px;
+  height: 68px;
+  perspective: 900px;
+  animation: dealIn 0.34s var(--ease-deal) both;
+}
+
+@keyframes dealIn {
+  0% {
+    transform: translate(var(--from-x, 28px), -46px) rotate(var(--deal-rot, -6deg)) scale(0.86);
+    opacity: 0;
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(0, 0) rotate(var(--rest-rot, 0deg)) scale(1);
+    opacity: 1;
+  }
 }
 
 .card-flip {
@@ -576,7 +795,7 @@ button {
   width: 100%;
   height: 100%;
   transform-style: preserve-3d;
-  transition: transform 0.44s var(--spring);
+  transition: transform 0.4s var(--ease-flip);
 }
 
 .card-flip.is-face-up {
@@ -587,8 +806,8 @@ button {
   position: absolute;
   inset: 0;
   backface-visibility: hidden;
-  border-radius: 7px;
-  box-shadow: var(--sh-2);
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4), 0 8px 16px rgba(0, 0, 0, 0.28);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -598,8 +817,10 @@ button {
 
 .card-back {
   background:
-    repeating-linear-gradient(135deg, #9c2820 0 5px, #7a1c15 5px 10px);
-  border: 2px solid var(--gold);
+    radial-gradient(circle at 50% 40%, rgba(244, 221, 151, 0.18), transparent 55%),
+    repeating-linear-gradient(45deg, #9c2820 0 6px, #86201a 6px 12px),
+    repeating-linear-gradient(-45deg, rgba(0, 0, 0, 0.12) 0 6px, transparent 6px 12px);
+  box-shadow: inset 0 0 0 2px var(--gold-inlay), inset 0 0 0 3px rgba(0, 0, 0, 0.35);
 }
 
 .card-back::after {
@@ -608,20 +829,21 @@ button {
   inset: 0;
   display: grid;
   place-items: center;
-  color: rgba(230, 198, 110, 0.72);
-  font-size: 1.1rem;
+  color: rgba(244, 221, 151, 0.85);
+  font-size: 1.05rem;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 .card-front {
-  background: linear-gradient(160deg, #ffffff, #f2f0e8);
+  background:
+    linear-gradient(150deg, rgba(255, 255, 255, 0.7), transparent 40%),
+    linear-gradient(160deg, #fffef9, #f3efe2);
   transform: rotateY(180deg);
+  color: #16181d;
 }
 
 .card-front.red {
-  color: var(--banker-deep);
-}
-.card-front.black {
-  color: #16181d;
+  color: #c0271f;
 }
 
 .card-front .rank-top {
@@ -637,17 +859,6 @@ button {
   line-height: 1;
   align-self: flex-end;
   transform: rotate(180deg);
-}
-
-@keyframes dealIn {
-  from {
-    transform: translate(var(--from-x, 30px), -38px) scale(0.7) rotate(var(--deal-rot, -6deg));
-    opacity: 0;
-  }
-  to {
-    transform: translate(0, 0) scale(1) rotate(var(--rest-rot, 0deg));
-    opacity: 1;
-  }
 }
 
 .hand-total {
@@ -672,7 +883,7 @@ button {
   transform: translate(-50%, -50%) scale(0.8);
   font-family: var(--font-display);
   font-weight: 600;
-  font-size: 1.16rem;
+  font-size: 1.12rem;
   letter-spacing: 0.01em;
   padding: 9px 20px;
   border-radius: 99px;
@@ -687,6 +898,17 @@ button {
   z-index: 6;
   box-shadow: var(--sh-3);
   transition: opacity 0.28s var(--ease), transform 0.34s var(--spring);
+  text-align: center;
+}
+
+.result-banner .banner-sub {
+  display: block;
+  font-family: var(--font-ui);
+  font-weight: 700;
+  font-size: 0.64rem;
+  letter-spacing: 0.04em;
+  color: var(--gold-inlay-hi);
+  margin-top: 2px;
 }
 
 .result-banner.show {
@@ -694,20 +916,20 @@ button {
   transform: translate(-50%, -50%) scale(1);
 }
 
-/* ---------- Betting layout ---------- */
+/* ============================================================
+   BET SPOTS — painted onto the felt (::before ring model)
+   ============================================================ */
 .betting-layout {
   display: flex;
   flex-direction: column;
-  gap: 7px;
-  position: relative;
-  z-index: 1;
+  gap: 8px;
 }
 
 .corner-row,
 .main-row,
 .side-row {
   display: grid;
-  gap: 7px;
+  gap: 8px;
 }
 
 .corner-row {
@@ -715,8 +937,9 @@ button {
 }
 
 .main-row {
-  grid-template-columns: 1fr 0.62fr 1fr;
-  align-items: stretch;
+  grid-template-columns: 1fr 0.58fr 1fr;
+  align-items: start;
+  margin-top: 4px;
 }
 
 .side-row {
@@ -731,103 +954,70 @@ button {
   justify-content: center;
   gap: 1px;
   min-height: 44px;
-  padding: 6px 6px 5px;
+  padding: 6px 10px;
   cursor: pointer;
-  color: var(--ink);
-  border-radius: var(--r-md);
-  border: 1.5px solid var(--hairline-strong);
-  background: rgba(0, 0, 0, 0.2);
+  color: var(--print-white);
+  background: transparent;
+  border: none;
+  border-radius: 16px;
   -webkit-tap-highlight-color: transparent;
-  transition: transform 0.14s var(--spring), box-shadow 0.18s var(--ease), border-color 0.18s var(--ease),
-    background 0.18s var(--ease);
-  overflow: hidden;
+  transition: transform 0.16s var(--spring);
 }
 
-.bet-spot::after {
-  /* soft inner sheen */
+/* the painted outline lives on ::before (felt shows through the middle) */
+.bet-spot::before {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent 45%);
+  border-radius: inherit;
+  box-shadow:
+    inset 0 0 0 2px var(--spot-ink, var(--print-dim)),
+    inset 0 0 0 3.5px rgba(0, 0, 0, 0.25),
+    inset 0 0 24px rgba(0, 0, 0, 0.28);
+  background: radial-gradient(120% 130% at 50% 0%, var(--spot-wash, transparent) 0%, transparent 62%);
+  transition: box-shadow 0.22s var(--ease), background 0.22s var(--ease);
   pointer-events: none;
 }
 
 .bet-spot:active {
-  transform: scale(0.96);
+  transform: scale(0.965);
 }
 
 .bet-spot:disabled {
   cursor: not-allowed;
 }
 
-.bet-spot.has-bet {
-  border-color: var(--gold);
-  box-shadow: var(--glow-gold);
-}
-
-.bet-spot.spot-win {
-  border-color: var(--win);
-  box-shadow: 0 0 0 1px var(--win), 0 0 20px rgba(52, 209, 127, 0.45);
-}
-
-.bet-spot.spot-push {
-  border-color: var(--gold);
-  box-shadow: 0 0 0 1px var(--gold);
-}
-
-.bet-spot.spot-lose {
-  opacity: 0.44;
-}
-
 .bet-spot-main {
-  border-radius: var(--r-lg);
-  min-height: 58px;
+  min-height: 84px;
+  border-radius: 20px / 26px;
 }
 
 .bet-spot-player {
-  border-color: rgba(79, 157, 255, 0.55);
-  background:
-    radial-gradient(90% 120% at 50% 0%, rgba(79, 157, 255, 0.32), rgba(0, 0, 0, 0.22) 70%);
+  --spot-ink: #7db4ff;
+  --spot-wash: rgba(79, 157, 255, 0.14);
 }
-
 .bet-spot-banker {
-  border-color: rgba(255, 91, 82, 0.55);
-  background:
-    radial-gradient(90% 120% at 50% 0%, rgba(255, 91, 82, 0.32), rgba(0, 0, 0, 0.22) 70%);
+  --spot-ink: #ff8a83;
+  --spot-wash: rgba(255, 91, 82, 0.14);
 }
-
 .bet-spot-tie {
-  border-color: rgba(52, 209, 127, 0.5);
-  background:
-    radial-gradient(90% 120% at 50% 0%, rgba(52, 209, 127, 0.3), rgba(0, 0, 0, 0.22) 70%);
-  min-height: 44px;
+  --spot-ink: #6fe6a3;
+  --spot-wash: rgba(52, 209, 127, 0.14);
+  min-height: 60px;
   align-self: center;
 }
-
-.bet-spot-pair {
-  min-height: 32px;
-  flex-direction: row;
-  gap: 6px;
-  border-color: rgba(230, 198, 110, 0.4);
+.bet-spot-player,
+.bet-spot-banker {
+  transform: translateY(-5px);
 }
-
-.bet-spot-side {
-  min-height: 42px;
-  border-color: rgba(230, 198, 110, 0.42);
-  background: linear-gradient(150deg, rgba(230, 198, 110, 0.12), rgba(0, 0, 0, 0.24));
-}
-
-.spot-top {
-  display: flex;
-  align-items: baseline;
-  gap: 6px;
-  position: relative;
-  z-index: 1;
+.bet-spot-player:active,
+.bet-spot-banker:active {
+  transform: translateY(-5px) scale(0.965);
 }
 
 .spot-label {
   font-weight: 800;
-  font-size: 0.76rem;
+  font-size: 0.78rem;
   letter-spacing: 0.02em;
   position: relative;
   z-index: 1;
@@ -836,78 +1026,296 @@ button {
 .main-row .spot-label {
   font-family: var(--font-display);
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: 0.92rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-}
-
-.bet-spot-pair .spot-label {
-  font-size: 0.64rem;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.spot-sub {
-  font-size: 0.54rem;
-  color: var(--ink-mute);
-  position: relative;
-  z-index: 1;
+  position: absolute;
+  top: 11px;
 }
 
 .spot-payout {
-  font-size: 0.6rem;
-  color: var(--gold);
+  font-size: 0.62rem;
+  color: var(--gold-inlay-hi);
   font-weight: 800;
   position: relative;
   z-index: 1;
+  font-variant-numeric: tabular-nums;
 }
 
 .main-row .spot-payout {
-  font-size: 0.66rem;
+  position: absolute;
+  bottom: 11px;
+  font-size: 0.64rem;
 }
 
+/* bet states */
+.bet-spot.has-bet::before {
+  box-shadow:
+    inset 0 0 0 2px var(--gold-inlay),
+    inset 0 0 0 3.5px rgba(0, 0, 0, 0.3),
+    inset 0 0 26px rgba(216, 180, 90, 0.16),
+    0 0 0 1px rgba(216, 180, 90, 0.4),
+    0 6px 20px rgba(216, 180, 90, 0.18);
+  background: radial-gradient(120% 130% at 50% 0%, rgba(216, 180, 90, 0.12), transparent 62%);
+}
+
+.bet-spot.spot-win::before {
+  box-shadow:
+    inset 0 0 0 2.5px var(--win),
+    inset 0 0 30px rgba(52, 209, 127, 0.35),
+    0 0 0 1px var(--win),
+    0 0 34px rgba(52, 209, 127, 0.5);
+}
+.bet-spot.spot-win {
+  animation: spotWin 0.5s var(--spring);
+}
+@keyframes spotWin {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+.bet-spot-player.spot-win,
+.bet-spot-banker.spot-win {
+  animation: spotWinLifted 0.5s var(--spring);
+}
+@keyframes spotWinLifted {
+  0% {
+    transform: translateY(-5px) scale(1);
+  }
+  40% {
+    transform: translateY(-5px) scale(1.05);
+  }
+  100% {
+    transform: translateY(-5px) scale(1);
+  }
+}
+
+.bet-spot.spot-push::before {
+  box-shadow: inset 0 0 0 2.5px var(--gold-inlay), 0 0 0 1px var(--gold-inlay);
+}
+
+.bet-spot.spot-lose {
+  opacity: 0.4;
+  filter: grayscale(0.4);
+  transition: opacity 0.4s var(--ease) 0.15s, filter 0.4s var(--ease);
+}
+
+/* placed chips + stake badge */
 .chip-stack {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 3;
   display: flex;
+  flex-direction: column-reverse;
   align-items: center;
-  height: 0;
-  position: relative;
-  z-index: 2;
-  transition: height 0.12s var(--ease);
-}
-
-.chip-stack.has-chips {
-  height: 16px;
-  margin-top: 2px;
+  filter: drop-shadow(0 5px 5px rgba(0, 0, 0, 0.5));
+  pointer-events: none;
 }
 
 .stake-badge {
   position: absolute;
-  bottom: -7px;
+  bottom: 5px;
   left: 50%;
   transform: translateX(-50%);
-  background: #100c04;
-  border: 1px solid var(--gold);
-  color: var(--gold);
+  z-index: 4;
+  background: rgba(8, 10, 14, 0.9);
+  border: 1px solid var(--gold-inlay);
+  color: var(--gold-inlay-hi);
   font-size: 0.58rem;
   font-weight: 800;
-  border-radius: 99px;
+  font-variant-numeric: tabular-nums;
   padding: 1px 8px;
+  border-radius: 99px;
   display: none;
-  z-index: 3;
   white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
 }
 
 .stake-badge.show {
   display: block;
 }
 
+/* Player / Banker Bonus (Dragon Bonus) */
+.bet-spot-bonus {
+  min-height: 50px;
+  padding: 7px 12px 8px;
+  border-radius: 14px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas: 'head max' 'ladder ladder';
+  align-items: center;
+  gap: 4px 8px;
+  overflow: hidden;
+  --spot-ink: var(--gold-inlay);
+}
+
+.bet-spot-bonus::before {
+  box-shadow:
+    inset 0 0 0 1.5px var(--gold-inlay),
+    inset 0 0 0 2.5px rgba(0, 0, 0, 0.3),
+    inset 0 0 18px rgba(216, 180, 90, 0.14);
+  background:
+    repeating-linear-gradient(135deg, rgba(216, 180, 90, 0.08) 0 6px, transparent 6px 12px),
+    radial-gradient(120% 140% at 50% 0%, rgba(216, 180, 90, 0.16), transparent 60%);
+}
+
+.bonus-head {
+  grid-area: head;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  z-index: 1;
+  min-width: 0;
+}
+.bonus-side {
+  font-size: 0.58rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.bet-spot-bonus[data-spot='playerBonus'] .bonus-side {
+  color: #7db4ff;
+}
+.bet-spot-bonus[data-spot='bankerBonus'] .bonus-side {
+  color: #ff8a83;
+}
+.bonus-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.86rem;
+  letter-spacing: 0.04em;
+  color: var(--gold-inlay-hi);
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.5);
+}
+.bonus-max {
+  grid-area: max;
+  font-size: 0.56rem;
+  font-weight: 700;
+  color: var(--print-dim);
+  z-index: 1;
+  white-space: nowrap;
+}
+.bonus-max b {
+  color: var(--gold-inlay-hi);
+  font-size: 0.74rem;
+  font-variant-numeric: tabular-nums;
+}
+.bonus-ladder {
+  grid-area: ladder;
+  height: 3px;
+  border-radius: 2px;
+  z-index: 1;
+  background: linear-gradient(
+    90deg,
+    rgba(216, 180, 90, 0.25) 0%,
+    rgba(216, 180, 90, 0.35) 40%,
+    rgba(244, 221, 151, 0.7) 78%,
+    var(--gold-inlay-hi) 100%
+  );
+  -webkit-mask: repeating-linear-gradient(90deg, #000 0 6px, transparent 6px 9px);
+  mask: repeating-linear-gradient(90deg, #000 0 6px, transparent 6px 9px);
+}
+/* Thin bonus / side spots: the felt is too shallow for a chip column, so a
+   bet reads through the gold ring glow + stake badge instead. */
+.bet-spot-bonus .chip-stack,
+.bet-spot-side .chip-stack {
+  display: none;
+}
+
+/* Side bets — celestial enamel medallions */
+.bet-spot-side {
+  min-height: 48px;
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  align-items: center;
+  gap: 9px;
+  padding: 6px 10px 6px 8px;
+  border-radius: 16px;
+}
+.bet-spot-moon8 {
+  --spot-ink: #9ab4ff;
+  --spot-wash: rgba(120, 150, 255, 0.16);
+}
+.bet-spot-sun7 {
+  --spot-ink: #ffcf6b;
+  --spot-wash: rgba(255, 190, 80, 0.16);
+}
+
+.side-emblem {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 1rem;
+  z-index: 1;
+  box-shadow:
+    inset 0 1px 2px rgba(255, 255, 255, 0.4),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.4),
+    0 2px 5px rgba(0, 0, 0, 0.5);
+  transition: transform 0.3s var(--spring);
+}
+.bet-spot-moon8 .side-emblem {
+  background: radial-gradient(circle at 35% 30%, #2b3a6b, #0c1230);
+}
+.bet-spot-sun7 .side-emblem {
+  background: radial-gradient(circle at 35% 30%, #7a4d12, #2c1a05);
+}
+.bet-spot-side.spot-win .side-emblem {
+  transform: rotate(10deg) scale(1.08);
+}
+
+.side-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  z-index: 1;
+  min-width: 0;
+}
+.side-top {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+.side-name {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.8rem;
+  letter-spacing: 0.03em;
+}
+.spot-sub {
+  font-size: 0.52rem;
+  color: var(--print-dim);
+  white-space: nowrap;
+  z-index: 1;
+}
+.bet-spot-side .chip-stack {
+  left: auto;
+  right: 12px;
+  top: 50%;
+}
+.bet-spot-side .stake-badge {
+  left: auto;
+  right: 10px;
+  transform: none;
+  bottom: 4px;
+}
+
 .commission-note {
   text-align: center;
-  font-size: 0.58rem;
-  color: var(--ink-mute);
+  font-size: 0.56rem;
+  color: var(--print-dim);
   margin: 2px 0 0;
   position: relative;
-  z-index: 1;
+  z-index: 2;
 }
 
 /* ---------- Chips ---------- */
@@ -931,13 +1339,14 @@ button {
     var(--face);
   box-shadow:
     inset 0 0 0 3px var(--rim),
-    inset 0 0 0 4px rgba(255, 255, 255, 0.2),
-    var(--sh-1);
+    inset 0 0 0 4px rgba(255, 255, 255, 0.22),
+    inset 0 -3px 5px rgba(0, 0, 0, 0.35),
+    inset 0 2px 3px rgba(255, 255, 255, 0.35),
+    0 3px 5px rgba(0, 0, 0, 0.45);
   transition: transform 0.16s var(--spring);
 }
 
 .chip::after {
-  /* edge spots */
   content: '';
   position: absolute;
   inset: 0;
@@ -950,24 +1359,24 @@ button {
 }
 
 .chip[data-value='5'] {
-  --face: #c0392b;
+  --face: #b3382c;
   --rim: #7c1d15;
 }
 .chip[data-value='25'] {
-  --face: #1f9256;
+  --face: #1f7a4d;
   --rim: #0c4a2c;
 }
 .chip[data-value='100'] {
-  --face: #2c313a;
+  --face: #23262d;
   --rim: #05070b;
 }
 .chip[data-value='500'] {
-  --face: #7d3ba8;
-  --rim: #40205c;
+  --face: #5e2b86;
+  --rim: #351a4d;
 }
 .chip[data-value='1000'] {
-  --face: #d79a2b;
-  --rim: #8a5c12;
+  --face: #c8791f;
+  --rim: #7d4a0f;
 }
 
 .chip.selected {
@@ -983,25 +1392,42 @@ button {
   box-shadow: 0 0 12px rgba(230, 198, 110, 0.5);
 }
 
-/* mini chips in a stack */
+/* mini chips — vertical clay stack */
 .chip.mini {
-  width: 14px;
-  height: 14px;
-  box-shadow: inset 0 0 0 2px var(--rim), 0 1px 2px rgba(0, 0, 0, 0.5);
-  margin-left: -7px;
+  width: 15px;
+  height: 15px;
+  box-shadow:
+    inset 0 0 0 2px var(--rim),
+    inset 0 -1px 1px rgba(0, 0, 0, 0.4),
+    0 1px 2px rgba(0, 0, 0, 0.5);
+  margin-top: -12px;
 }
 .chip.mini::after {
   display: none;
 }
 .chip.mini:first-child {
-  margin-left: 0;
+  margin-top: 0;
+}
+.chip.mini.chip-drop {
+  animation: chipDrop 0.26s var(--ease-deal);
+}
+@keyframes chipDrop {
+  0% {
+    transform: translateY(-22px) scale(1.1);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
 }
 
 .chip-overflow {
-  margin-left: 3px;
+  margin-top: 2px;
   font-size: 0.54rem;
   font-weight: 800;
-  color: var(--gold);
+  color: var(--gold-inlay-hi);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
 }
 
 /* ---------- Chip dock / actions ---------- */
@@ -1050,11 +1476,9 @@ button {
 .action-btn:hover:not(:disabled) {
   background: var(--surface-2);
 }
-
 .action-btn:active:not(:disabled) {
   transform: scale(0.96);
 }
-
 .action-btn:disabled {
   opacity: 0.36;
   cursor: not-allowed;
@@ -1066,7 +1490,6 @@ button {
   border-color: transparent;
   box-shadow: 0 4px 16px rgba(230, 198, 110, 0.28);
 }
-
 .action-btn-primary:hover:not(:disabled) {
   background: linear-gradient(145deg, #f0d688, var(--gold));
 }
@@ -1074,7 +1497,7 @@ button {
 /* ---------- Road Genie ---------- */
 .genie {
   position: fixed;
-  right: max(10px, calc(50% - 310px + 10px));
+  right: max(10px, calc(50% - 320px + 10px));
   bottom: 122px;
   z-index: 60;
   display: flex;
@@ -1093,8 +1516,7 @@ button {
   display: grid;
   place-items: center;
   font-size: 1.28rem;
-  background:
-    radial-gradient(circle at 34% 28%, #fff2c6, var(--gold) 52%, #9a7620 100%);
+  background: radial-gradient(circle at 34% 28%, #fff2c6, var(--gold) 52%, #9a7620 100%);
   box-shadow: 0 8px 26px rgba(230, 198, 110, 0.32), var(--sh-2);
 }
 
@@ -1125,18 +1547,6 @@ button {
     transform: scale(1.5);
     opacity: 0;
   }
-}
-
-.genie-orb.has-signal::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: var(--danger);
-  border: 2px solid var(--bg);
 }
 
 .genie-panel {
@@ -1471,17 +1881,73 @@ button {
   transform: translate(-50%, 0);
 }
 
+/* ---------- 30:1 bonus sparkle burst ---------- */
+.burst {
+  position: fixed;
+  z-index: 210;
+  pointer-events: none;
+  width: 0;
+  height: 0;
+}
+.burst i {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #fff2c6, var(--gold));
+  box-shadow: 0 0 6px rgba(230, 198, 110, 0.9);
+  animation: burstFly 0.7s var(--ease-deal) forwards;
+}
+@keyframes burstFly {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--tx), var(--ty)) scale(0.3);
+    opacity: 0;
+  }
+}
+
 /* ---------- Responsive ---------- */
 @media (min-width: 560px) {
-  .road-main {
-    --cell: 28px;
+  :root {
+    --cell-main: 27px;
+    --cell-derived: 13px;
   }
   .card-slots {
     min-height: 84px;
   }
   .playing-card {
-    width: 52px;
-    height: 76px;
+    width: 54px;
+    height: 78px;
+  }
+}
+
+@media (min-width: 820px) {
+  :root {
+    --cell-main: 30px;
+    --cell-derived: 14px;
+  }
+}
+
+/* Mobile: single road pane, driven by tabs */
+@media (max-width: 619px) {
+  .scoreboard-tabs {
+    display: inline-flex;
+  }
+  .board-top {
+    grid-template-columns: 1fr;
+  }
+  .bead-pane .road-grid {
+    width: 100%;
+    max-width: none;
+  }
+  .board-top[data-mobile-view='bigroad'] .bead-pane {
+    display: none;
+  }
+  .board-top[data-mobile-view='beadplate'] .big-pane {
+    display: none;
   }
 }
 
@@ -1500,5 +1966,20 @@ button {
     width: 46px;
     height: 46px;
     font-size: 1.2rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .is-latest::after,
+  .genie-orb-pulse {
+    animation: none;
+  }
+  .bet-spot.spot-win,
+  .bet-spot-player.spot-win,
+  .bet-spot-banker.spot-win {
+    animation: none;
+  }
+  .burst i {
+    display: none;
   }
 }

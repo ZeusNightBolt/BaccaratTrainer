@@ -16,10 +16,11 @@ The previous version got the math right but nothing about the table felt real: n
 
 ## Features
 
-- **Authentic, compact mini-baccarat felt** — Player Pair / Banker Pair corner boxes, Player–Tie–Banker main spots, and Moon 8 / Sun 7 side boxes laid out where they sit on a real EZ Baccarat table, sized so the felt and scoreboard both fit comfortably on one screen.
-- **Real chip mechanics** — pick a denomination ($5/$25/$100/$500/$1,000) off the rail, tap a spot to stack chips on it. Stacks render as small overlapping chips capped with a "+N" badge, fully contained inside the spot's own border (no more chips floating outside the betting circle). Clear, Rebet, and Double all behave like a live table.
-- **Card-by-card dealing with a real flip** — cards are dealt face-down in the real dealing order (Player, Banker, Player, Banker, then the third cards), sliding in from the dealer's position before flipping face-up in 3D, with hand totals updating as each card lands and a result banner announcing the win (including Sun 7 / Moon 8 hits).
-- **Five live scoreboards on an authentic grid-lined scorecard** — Big Road (hollow red/blue rings that stack into streak columns, with tie slashes and pair dots), Bead Plate (solid B/P/T coins filling top-to-bottom), and the Big Eye Boy / Small Road / Cockroach Road derived roads are each plotted at their exact grid coordinates — including the dragon-tail overflow when a streak runs past six rows.
+- **Printed Atlantic City felt** — a physically-lit green felt with a woven micro-texture, a black cushion rail with gold piping, and a printed layout arc, rendered entirely in CSS (no image assets). The Player–Tie–Banker zone, the Player Bonus / Banker Bonus corners, and the Moon 8 / Sun 7 medallions are painted onto the felt so the cloth shows through each spot, just like a real table.
+- **Player Bonus / Banker Bonus (Dragon Bonus)** — the Resorts World / Atlantic City margin-of-victory side bet, replacing the flat pair bets. Bet a side; a non-natural win pays on a ladder from 1:1 (win by 4) up to **30:1** (win by 9), a natural win pays 1:1, and a natural tie pushes. A winning bonus is announced with its tier ("Player Bonus · Win by 9 · 30:1") so the scaling paytable becomes learnable through play.
+- **Real chip mechanics** — pick a denomination ($5/$25/$100/$500/$1,000) off the rail (rendered as clay chips with edge spots), tap a spot to drop chips onto it. Clear, Rebet, and Double all behave like a live table, and the bankroll counter ticks up/down with a colour flash on settle.
+- **Card-by-card dealing with a real flip** — cards are dealt face-down in the real order (Player, Banker, Player, Banker, then the third cards), sliding in from the dealer's position before flipping face-up in 3D, with a deliberate held beat before any third card, hand totals updating as each card lands, and a result banner announcing the win.
+- **Five live scoreboards, each with its own authentic icon** — laid out like an Atlantic City electronic board (Bead Plate + Big Road side-by-side on wide screens): Bead Plate uses solid B/P/T coins, Big Road uses hollow red/blue rings with green tie slashes and pair dots, and the three derived roads are shape-coded exactly as on a real board — **Big Eye Boy = hollow ring, Small Road = solid dot, Cockroach Road = diagonal slash** — all plotted at their exact grid coordinates with dragon-tail overflow.
 - **Road Genie** — a floating pattern-reading assistant in the spirit of the table regulars who narrate the Big Road. She recommends following an active streak by default, calls out regular "chop" patterns (e.g. three-Player/three-Banker repeating) and suggests fading them at a smaller-than-normal unit once the pattern has matured, and cross-reads Big Eye Boy / Small Road / Cockroach Road to say where they agree or disagree. It's folk pattern-reading for flavor, not an edge — every hand is an independent draw from the shoe, and she says so.
 - **A real 8-deck shoe** — burn card, cut card, penetration meter, and an automatic reshuffle (with fresh scoreboards) when the cut card is reached.
 - **Commission-free Banker** — Banker pays 1:1 with no 5% rake; a Banker win on a three-card 7 pushes instead of paying, which is what funds the Sun 7 side bet, exactly as it works on the real EZ Baccarat felt.
@@ -37,12 +38,12 @@ The previous version got the math right but nothing about the table felt real: n
 | Player | 1:1 | Push on a tie |
 | Banker | 1:1 | Commission-free; pushes (doesn't win) if Banker wins with a 3-card 7 |
 | Tie | 8:1 | Player/Banker bets push |
-| Player Pair | 11:1 | Player's first two cards match rank |
-| Banker Pair | 11:1 | Banker's first two cards match rank |
+| Player Bonus | 1:1 → 30:1 | Player wins; non-natural win scaled by margin (win by 4→1:1 … 9→30:1), natural win 1:1, natural tie pushes |
+| Banker Bonus | 1:1 → 30:1 | Banker wins; same Dragon Bonus margin ladder |
 | ☀ Sun 7 | 40:1 (adjustable) | Banker wins with a three-card total of 7 |
 | 🌙 Moon 8 | 25:1 (adjustable) | Player wins with a three-card total of 8 |
 
-Sun 7 and Moon 8 ratios can be retuned per-table from the ⚙ settings panel; every other payout is fixed. Full third-card drawing rules, and how to read each scoreboard, are available from the in-app **info** button.
+The Player/Banker Bonus (Dragon Bonus) margin ladder is 4→1:1, 5→2:1, 6→4:1, 7→6:1, 8→10:1, 9→30:1; a win by 3 or fewer loses. Sun 7 and Moon 8 ratios can be retuned per-table from the ⚙ settings panel. Full third-card drawing rules, and how to read each scoreboard, are available from the in-app **info** button.
 
 ## Tech stack
 

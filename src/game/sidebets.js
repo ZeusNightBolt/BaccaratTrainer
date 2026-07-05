@@ -9,7 +9,7 @@ import { OUTCOME } from './rules.js';
 // player-adjustable at the table (see GameState.setSideBetPayout); everything
 // else follows the standard fixed paytable below.
 
-export const SPOTS = ['player', 'banker', 'tie', 'playerPair', 'bankerPair', 'sun7', 'moon8'];
+export const SPOTS = ['player', 'banker', 'tie', 'playerBonus', 'bankerBonus', 'sun7', 'moon8'];
 
 // Spots whose payout ratio the player can retune from the default.
 export const ADJUSTABLE_SPOTS = ['sun7', 'moon8'];
@@ -20,11 +20,17 @@ export const DEFAULT_PAYOUTS = {
   player: 1,
   banker: 1, // commission-free; pushes on banker 3-card-7 instead
   tie: 8,
-  playerPair: 11,
-  bankerPair: 11,
   sun7: 40,
   moon8: 25,
 };
+
+// Player Bonus / Banker Bonus (the "Dragon Bonus" margin-of-victory side bet, as
+// spread at Resorts World / Atlantic City). A bet on a side wins when THAT side wins:
+//   - with a natural (two-card 8/9): pays 1:1 flat, regardless of margin
+//   - with a drawn (non-natural) hand: pays by the point margin of victory below
+//   - a natural tie (both hands natural and equal) pushes; every other result loses
+export const BONUS_MARGIN_PAYOUTS = { 9: 30, 8: 10, 7: 6, 6: 4, 5: 2, 4: 1 };
+export const BONUS_NATURAL_PAYOUT = 1;
 
 export const RESULT = { WIN: 'win', LOSE: 'lose', PUSH: 'push' };
 
@@ -42,10 +48,10 @@ export function resolveBets(bets, hand, payouts = DEFAULT_PAYOUTS) {
     if (!stake) continue;
     totalStaked += stake;
 
-    const { result, profit } = resolveSpot(spot, stake, hand, payouts);
-    const returned = result === RESULT.LOSE ? 0 : stake + profit;
+    const res = resolveSpot(spot, stake, hand, payouts);
+    const returned = res.result === RESULT.LOSE ? 0 : stake + res.profit;
     totalReturned += returned;
-    settlement[spot] = { stake, result, profit, returned };
+    settlement[spot] = { stake, returned, ...res };
   }
 
   return {
@@ -76,13 +82,11 @@ function resolveSpot(spot, stake, hand, payouts) {
       if (hand.outcome === OUTCOME.TIE) return { result: RESULT.WIN, profit: stake * mult };
       return { result: RESULT.LOSE, profit: 0 };
 
-    case 'playerPair':
-      if (hand.playerPair) return { result: RESULT.WIN, profit: stake * mult };
-      return { result: RESULT.LOSE, profit: 0 };
+    case 'playerBonus':
+      return resolveBonus(OUTCOME.PLAYER, stake, hand);
 
-    case 'bankerPair':
-      if (hand.bankerPair) return { result: RESULT.WIN, profit: stake * mult };
-      return { result: RESULT.LOSE, profit: 0 };
+    case 'bankerBonus':
+      return resolveBonus(OUTCOME.BANKER, stake, hand);
 
     case 'sun7':
       if (hand.bankerThreeCardSeven) return { result: RESULT.WIN, profit: stake * mult };
@@ -95,4 +99,31 @@ function resolveSpot(spot, stake, hand, payouts) {
     default:
       throw new Error(`Unknown bet spot: ${spot}`);
   }
+}
+
+function resolveBonus(side, stake, hand) {
+  const bothNatural = hand.playerNatural && hand.bankerNatural;
+
+  if (hand.outcome === OUTCOME.TIE) {
+    // A natural tie returns the bet; any other tie loses.
+    return bothNatural
+      ? { result: RESULT.PUSH, profit: 0 }
+      : { result: RESULT.LOSE, profit: 0 };
+  }
+
+  if (hand.outcome !== side) return { result: RESULT.LOSE, profit: 0 };
+
+  const sideNatural = side === OUTCOME.PLAYER ? hand.playerNatural : hand.bankerNatural;
+  if (sideNatural) {
+    return { result: RESULT.WIN, profit: stake * BONUS_NATURAL_PAYOUT, tier: 'Natural', mult: BONUS_NATURAL_PAYOUT };
+  }
+
+  const margin = Math.abs(hand.playerTotal - hand.bankerTotal);
+  const mult = BONUS_MARGIN_PAYOUTS[margin];
+  if (mult) {
+    return { result: RESULT.WIN, profit: stake * mult, tier: `Win by ${margin}`, mult };
+  }
+
+  // Non-natural win by 3 or fewer points pays nothing.
+  return { result: RESULT.LOSE, profit: 0 };
 }

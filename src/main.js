@@ -59,10 +59,61 @@ function refreshChipRail() {
   });
 }
 
+let shownBankroll = STARTING_BANKROLL;
+
 function refreshStats() {
-  el.bankroll.textContent = formatCurrency(game.bankroll);
   el.shoe.textContent = `#${game.shoeNumber} · ${game.history.length}h`;
   el.penetration.style.width = `${Math.min(100, Math.round(game.shoe.penetration() * 100))}%`;
+  animateBankroll(game.bankroll);
+}
+
+// Count the bankroll up/down over ~500ms with a colour flash on change.
+let bankrollRaf = null;
+function animateBankroll(target) {
+  if (target === shownBankroll) {
+    el.bankroll.textContent = formatCurrency(target);
+    return;
+  }
+  const from = shownBankroll;
+  const delta = target - from;
+  const start = performance.now();
+  const dur = 500;
+  el.bankroll.classList.remove('flash-up', 'flash-down');
+  el.bankroll.classList.add(delta > 0 ? 'flash-up' : 'flash-down');
+  if (bankrollRaf) cancelAnimationFrame(bankrollRaf);
+
+  const step = (now) => {
+    const t = Math.min(1, (now - start) / dur);
+    const eased = 1 - (1 - t) * (1 - t);
+    const value = Math.round(from + delta * eased);
+    el.bankroll.textContent = formatCurrency(value);
+    if (t < 1) {
+      bankrollRaf = requestAnimationFrame(step);
+    } else {
+      shownBankroll = target;
+      setTimeout(() => el.bankroll.classList.remove('flash-up', 'flash-down'), 400);
+    }
+  };
+  bankrollRaf = requestAnimationFrame(step);
+}
+
+function sparkleBurst(spotEl) {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const rect = spotEl.getBoundingClientRect();
+  const burst = document.createElement('div');
+  burst.className = 'burst';
+  burst.style.left = `${rect.left + rect.width / 2}px`;
+  burst.style.top = `${rect.top + rect.height / 2}px`;
+  for (let i = 0; i < 12; i += 1) {
+    const p = document.createElement('i');
+    const angle = (Math.PI * 2 * i) / 12 + (i % 2) * 0.3;
+    const dist = 34 + (i % 3) * 12;
+    p.style.setProperty('--tx', `${Math.cos(angle) * dist}px`);
+    p.style.setProperty('--ty', `${Math.sin(angle) * dist}px`);
+    burst.appendChild(p);
+  }
+  document.body.appendChild(burst);
+  setTimeout(() => burst.remove(), 800);
 }
 
 function refreshActionButtons() {
@@ -142,13 +193,15 @@ el.btnDeal.addEventListener('click', async () => {
 
   const round = game.playRound();
   await table.dealAnimated(round.hand);
-  table.showResult(round);
+  const jackpots = table.showResult(round);
   refreshStats();
   roadmap.render(game);
   genie.render();
+  jackpots.forEach(sparkleBurst);
 
   if (game.bankroll <= 0) {
     game.bankroll = STARTING_BANKROLL;
+    shownBankroll = STARTING_BANKROLL;
     toast(`Bankroll reset to ${formatCurrency(STARTING_BANKROLL)} for continued practice`);
     refreshStats();
   }

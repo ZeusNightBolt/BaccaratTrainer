@@ -8,12 +8,27 @@ export const RULES_HTML = `
   <tr><td>Player</td><td>1:1</td><td>Push on a tie</td></tr>
   <tr><td>Banker</td><td>1:1</td><td>Commission-free. Pushes instead of winning if Banker wins with a 3-card 7</td></tr>
   <tr><td>Tie</td><td>8:1</td><td>Player and Banker bets push</td></tr>
-  <tr><td>Player Pair</td><td>11:1</td><td>Player's first two cards match rank</td></tr>
-  <tr><td>Banker Pair</td><td>11:1</td><td>Banker's first two cards match rank</td></tr>
+  <tr><td>Player Bonus</td><td>up to 30:1</td><td>Player wins — scaled by margin (see below)</td></tr>
+  <tr><td>Banker Bonus</td><td>up to 30:1</td><td>Banker wins — scaled by margin (see below)</td></tr>
   <tr><td>☀ Sun 7</td><td>40:1 default</td><td>Banker wins with a 3-card total of 7</td></tr>
   <tr><td>🌙 Moon 8</td><td>25:1 default</td><td>Player wins with a 3-card total of 8</td></tr>
 </table>
 <p>This is the commission-free "EZ Baccarat" style spread alongside Sun 7 / Moon 8 side bets found at Atlantic City and Resorts World tables: no 5% rake is taken off Banker wins, but a Banker win by exactly a three-card 7 pushes instead of paying — that forgone win is what funds the Sun 7 payout.</p>
+
+<h3>Player Bonus / Banker Bonus</h3>
+<p>The "Dragon Bonus" margin-of-victory side bet, exactly as spread at Resorts World / Atlantic City. Bet a side; it pays when that side wins:</p>
+<table>
+  <tr><th>Your side wins…</th><th>Pays</th></tr>
+  <tr><td>with a natural 8 or 9 (two cards)</td><td>1:1</td></tr>
+  <tr><td>non-natural, by 9 points</td><td>30:1</td></tr>
+  <tr><td>non-natural, by 8 points</td><td>10:1</td></tr>
+  <tr><td>non-natural, by 7 points</td><td>6:1</td></tr>
+  <tr><td>non-natural, by 6 points</td><td>4:1</td></tr>
+  <tr><td>non-natural, by 5 points</td><td>2:1</td></tr>
+  <tr><td>non-natural, by 4 points</td><td>1:1</td></tr>
+  <tr><td>by 3 or fewer points</td><td>loses</td></tr>
+</table>
+<p>A natural tie pushes; every other losing or tying result loses the bonus.</p>
 <p>House paytables for Sun 7 / Moon 8 vary by casino, so both ratios are adjustable from the <strong>&#9881; settings</strong> button between hands.</p>
 
 <h3>Third-card rule (dealt automatically)</h3>

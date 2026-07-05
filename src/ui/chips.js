@@ -43,12 +43,14 @@ export function renderChipStack(container, amount) {
   if (remaining > 0) stackChips.push(CHIP_VALUES[0]);
 
   const visible = stackChips.slice(0, MAX_VISIBLE_MINI_CHIPS);
-  for (const value of visible) {
+  visible.forEach((value, i) => {
     const mini = document.createElement('span');
     mini.className = 'chip mini';
+    // The top (last) chip drops in, so adding to a bet reads as a fresh chip landing.
+    if (i === visible.length - 1) mini.classList.add('chip-drop');
     mini.dataset.value = String(value);
     container.appendChild(mini);
-  }
+  });
 
   const hiddenCount = stackChips.length - visible.length;
   if (hiddenCount > 0) {
