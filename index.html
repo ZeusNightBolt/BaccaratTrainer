@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+  <title>Baccarat Trainer &mdash; Sun 7 / Moon 8</title>
+  <meta name="description" content="A mini-baccarat trainer that mirrors a real Atlantic City / Resorts World EZ Baccarat table: Player, Banker, Tie, pairs, and the Sun 7 / Moon 8 40:1 side bets, with live Big Road, Bead Plate, Big Eye Boy, Small Road, and Cockroach Road scoreboards." />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='46' fill='%230f4c3a' stroke='%23d4af37' stroke-width='6'/%3E%3Ctext x='50' y='66' font-size='52' text-anchor='middle' fill='%23d4af37' font-family='Georgia, serif'%3E%E2%99%A6%3C/text%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="src/styles.css" />
+</head>
+<body>
+  <div class="app" id="app">
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark">&#9830;</span>
+        <span class="brand-name">Baccarat Trainer</span>
+      </div>
+      <div class="topbar-stats">
+        <div class="stat">
+          <span class="stat-label">Bankroll</span>
+          <span class="stat-value" id="stat-bankroll">$1,000</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Shoe</span>
+          <span class="stat-value" id="stat-shoe">#1 &middot; Hand 0</span>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <button class="icon-btn" id="btn-stats" title="Statistics" aria-label="Statistics">&#128202;</button>
+        <button class="icon-btn" id="btn-rules" title="How to play" aria-label="How to play">&#8505;</button>
+      </div>
+    </header>
+
+    <div class="penetration-bar" title="Shoe penetration">
+      <div class="penetration-fill" id="penetration-fill"></div>
+    </div>
+
+    <main class="table-area">
+      <section class="scoreboard" id="scoreboard">
+        <div class="scoreboard-header">
+          <div class="scoreboard-tabs">
+            <button class="tab-btn active" data-view="bigroad">Big Road</button>
+            <button class="tab-btn" data-view="beadplate">Bead Plate</button>
+          </div>
+          <div class="road-legend">
+            <span><i class="dot dot-banker"></i>Banker</span>
+            <span><i class="dot dot-player"></i>Player</span>
+            <span><i class="dot dot-tie"></i>Tie</span>
+          </div>
+        </div>
+        <div class="road-main" id="road-main"></div>
+        <div class="derived-roads">
+          <div class="derived-road">
+            <span class="derived-label">Big Eye Boy</span>
+            <div class="derived-grid" id="road-bigeyeboy"></div>
+          </div>
+          <div class="derived-road">
+            <span class="derived-label">Small Road</span>
+            <div class="derived-grid" id="road-smallroad"></div>
+          </div>
+          <div class="derived-road">
+            <span class="derived-label">Cockroach Road</span>
+            <div class="derived-grid" id="road-cockroach"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="felt">
+        <div class="hand-zone">
+          <div class="hand player-hand" id="player-hand">
+            <div class="hand-label">Player</div>
+            <div class="card-slots" id="player-cards"></div>
+            <div class="hand-total" id="player-total"></div>
+          </div>
+          <div class="result-banner" id="result-banner"></div>
+          <div class="hand banker-hand" id="banker-hand">
+            <div class="hand-label">Banker</div>
+            <div class="card-slots" id="banker-cards"></div>
+            <div class="hand-total" id="banker-total"></div>
+          </div>
+        </div>
+
+        <div class="betting-layout" id="betting-layout">
+          <div class="corner-row">
+            <button class="bet-spot bet-spot-pair" data-spot="playerPair">
+              <span class="spot-label">Player Pair</span>
+              <span class="spot-payout">11:1</span>
+              <span class="chip-stack" data-stack="playerPair"></span>
+              <span class="stake-badge" data-stake="playerPair"></span>
+            </button>
+            <button class="bet-spot bet-spot-pair" data-spot="bankerPair">
+              <span class="spot-label">Banker Pair</span>
+              <span class="spot-payout">11:1</span>
+              <span class="chip-stack" data-stack="bankerPair"></span>
+              <span class="stake-badge" data-stake="bankerPair"></span>
+            </button>
+          </div>
+
+          <div class="main-row">
+            <button class="bet-spot bet-spot-main bet-spot-player" data-spot="player">
+              <span class="spot-label">Player</span>
+              <span class="spot-payout">1:1</span>
+              <span class="chip-stack" data-stack="player"></span>
+              <span class="stake-badge" data-stake="player"></span>
+            </button>
+            <button class="bet-spot bet-spot-main bet-spot-tie" data-spot="tie">
+              <span class="spot-label">Tie</span>
+              <span class="spot-payout">8:1</span>
+              <span class="chip-stack" data-stack="tie"></span>
+              <span class="stake-badge" data-stake="tie"></span>
+            </button>
+            <button class="bet-spot bet-spot-main bet-spot-banker" data-spot="banker">
+              <span class="spot-label">Banker</span>
+              <span class="spot-payout">1:1&#8224;</span>
+              <span class="chip-stack" data-stack="banker"></span>
+              <span class="stake-badge" data-stake="banker"></span>
+            </button>
+          </div>
+
+          <div class="side-row">
+            <button class="bet-spot bet-spot-side bet-spot-moon8" data-spot="moon8">
+              <span class="spot-label">&#127772; Moon 8</span>
+              <span class="spot-sub">Player wins on 3-card 8</span>
+              <span class="spot-payout">40:1</span>
+              <span class="chip-stack" data-stack="moon8"></span>
+              <span class="stake-badge" data-stake="moon8"></span>
+            </button>
+            <button class="bet-spot bet-spot-side bet-spot-sun7" data-spot="sun7">
+              <span class="spot-label">&#9728; Sun 7</span>
+              <span class="spot-sub">Banker wins on 3-card 7</span>
+              <span class="spot-payout">40:1</span>
+              <span class="chip-stack" data-stack="sun7"></span>
+              <span class="stake-badge" data-stake="sun7"></span>
+            </button>
+          </div>
+          <p class="commission-note">&#8224; Commission-free Banker &mdash; pushes on a winning 3-card 7 (funds the Sun 7 side bet)</p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="chip-dock">
+      <div class="chip-rail" id="chip-rail"></div>
+      <div class="action-bar">
+        <button class="action-btn" id="btn-clear">Clear</button>
+        <button class="action-btn" id="btn-rebet">Rebet</button>
+        <button class="action-btn" id="btn-double">Double</button>
+        <button class="action-btn action-btn-primary" id="btn-deal">Deal</button>
+      </div>
+    </footer>
+  </div>
+
+  <div class="modal-overlay" id="rules-modal" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="rules-title">
+      <div class="modal-head">
+        <h2 id="rules-title">How to Play</h2>
+        <button class="modal-close" id="rules-close" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body" id="rules-body"></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="stats-modal" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="stats-title">
+      <div class="modal-head">
+        <h2 id="stats-title">Session Statistics</h2>
+        <button class="modal-close" id="stats-close" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body" id="stats-body"></div>
+    </div>
+  </div>
+
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>
