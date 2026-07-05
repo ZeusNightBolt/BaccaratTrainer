@@ -82,6 +82,38 @@ export class RoadEngine {
 
     return layoutWithSnake(derivedColumns, maxRows);
   }
+
+  // The Atlantic City "ask" / forecast: given a hypothetical NEXT outcome ('P' or
+  // 'B'), what mark would land in each derived road? Returns
+  // { bigEyeBoy, smallRoad, cockroachRoad } where each is 'R' (pattern repeats),
+  // 'B' (pattern breaks), or null (not enough history yet). Real state is never
+  // mutated. Ties are ignored here — they never move a derived mark.
+  predict(nextOutcome) {
+    const cols = this.columns.map((col) => col.map((e) => ({ outcome: e.outcome })));
+    let C;
+    let R;
+    if (cols.length === 0) {
+      cols.push([{ outcome: nextOutcome }]);
+      C = 0;
+      R = 0;
+    } else {
+      const last = cols[cols.length - 1];
+      if (last[last.length - 1].outcome === nextOutcome) {
+        last.push({ outcome: nextOutcome });
+        C = cols.length - 1;
+        R = last.length - 1;
+      } else {
+        cols.push([{ outcome: nextOutcome }]);
+        C = cols.length - 1;
+        R = 0;
+      }
+    }
+    return {
+      bigEyeBoy: deriveMark(cols, C, R, 1),
+      smallRoad: deriveMark(cols, C, R, 2),
+      cockroachRoad: deriveMark(cols, C, R, 3),
+    };
+  }
 }
 
 // Computes the Big-Eye/Small/Cockroach mark for Big Road cell (col=C, row=R),

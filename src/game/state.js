@@ -10,9 +10,11 @@ import {
 } from './sidebets.js';
 import { RoadEngine } from './bigroad.js';
 
-const STARTING_BANKROLL = 1000;
-const TABLE_MIN = 5;
-const TABLE_MAX = 5000;
+// Atlantic City high-limit salon: 8-deck commission-free table, $100 minimum,
+// $50k maximum, seated with a $50k buy-in.
+const STARTING_BANKROLL = 50000;
+const TABLE_MIN = 100;
+const TABLE_MAX = 50000;
 
 export const PHASE = { BETTING: 'BETTING', DEALING: 'DEALING', RESULT: 'RESULT' };
 
@@ -164,6 +166,23 @@ export class GameState {
   // Called by the UI once result animations/toasts have finished.
   returnToBetting() {
     this.phase = PHASE.BETTING;
+  }
+
+  // Deals a hand purely to advance the shoe and roads (no wager, no wallet or
+  // record change) — used by Drill mode to grow the board between questions.
+  advanceShoe() {
+    if (this.shoe.needsReshuffle()) {
+      this.shoe.reset();
+      this.shoeNumber += 1;
+      this.road = new RoadEngine();
+      this.shoeRounds = [];
+    }
+    const hand = playHand(() => this.shoe.draw());
+    this.shoe.markHandComplete();
+    const roadCode = { PLAYER: 'P', BANKER: 'B', TIE: 'TIE' }[hand.outcome];
+    this.road.addResult(roadCode, { playerPair: hand.playerPair, bankerPair: hand.bankerPair });
+    this.shoeRounds.push({ hand });
+    return hand;
   }
 
   stats() {

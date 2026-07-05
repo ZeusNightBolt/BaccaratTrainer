@@ -42,11 +42,11 @@ test('undoLastChip removes placements one at a time in reverse order', () => {
 
 test('rebet rebuilds an undo stack that can be unwound', () => {
   const g = new GameState({ bankroll: 1000 });
-  g.placeChip('banker', 20);
+  g.placeChip('banker', 100);
   g.playRound();
   g.returnToBetting();
   g.rebet();
-  assert.deepEqual(g.bets, { banker: 20 });
+  assert.deepEqual(g.bets, { banker: 100 });
   assert.equal(g.undoLastChip(), 'banker');
   assert.deepEqual(g.bets, {});
 });
@@ -69,25 +69,25 @@ test('playRound deducts stake up front and pays out on the result', () => {
 test('playRound throws below table minimum and refuses mid-round double play', () => {
   const g = new GameState({ bankroll: 1000 });
   assert.throws(() => g.playRound());
-  g.placeChip('player', 10);
+  g.placeChip('player', 100);
   g.playRound();
   assert.throws(() => g.playRound());
 });
 
 test('rebet restores the previous wager after returning to betting', () => {
   const g = new GameState({ bankroll: 1000 });
-  g.placeChip('banker', 20);
-  g.placeChip('tie', 5);
+  g.placeChip('banker', 100);
+  g.placeChip('tie', 100);
   g.playRound();
   g.returnToBetting();
   g.rebet();
-  assert.deepEqual(g.bets, { banker: 20, tie: 5 });
+  assert.deepEqual(g.bets, { banker: 100, tie: 100 });
 });
 
 test('history and stats accumulate across rounds', () => {
   const g = new GameState({ bankroll: 1000 });
   for (let i = 0; i < 3; i += 1) {
-    g.placeChip('player', 10);
+    g.placeChip('player', 100);
     g.playRound();
     g.returnToBetting();
   }
@@ -102,7 +102,7 @@ test('stats report biggest win, streaks and a bankroll curve', () => {
   // Force outcomes via a fixed shoe substitute: stub playRound-adjacent state by
   // driving the real engine and just asserting structural invariants.
   for (let i = 0; i < 6; i += 1) {
-    g.placeChip('banker', 10);
+    g.placeChip('banker', 100);
     g.playRound();
     g.returnToBetting();
   }
@@ -116,7 +116,7 @@ test('stats report biggest win, streaks and a bankroll curve', () => {
 test('serialize/loadSession round-trips the lifetime record and wallet', () => {
   const g = new GameState({ bankroll: 1000 });
   for (let i = 0; i < 4; i += 1) {
-    g.placeChip('player', 10);
+    g.placeChip('player', 100);
     g.playRound();
     g.returnToBetting();
   }
@@ -147,7 +147,7 @@ test('setSideBetPayout rejects non-adjustable spots, bad ranges, and mid-round c
   assert.throws(() => g.setSideBetPayout('sun7', 101)); // above maximum
   assert.throws(() => g.setSideBetPayout('sun7', 20.5)); // not an integer
 
-  g.placeChip('player', 10);
+  g.placeChip('player', 100);
   g.playRound();
   assert.throws(() => g.setSideBetPayout('sun7', 35)); // mid-round
 });
@@ -161,11 +161,11 @@ test('an adjusted moon8 ratio is used when settling the bet', () => {
   let i = 0;
   g.shoe.draw = () => cards[i++];
 
-  g.placeChip('moon8', 10);
+  g.placeChip('moon8', 100);
   const round = g.playRound();
 
   assert.equal(round.hand.playerThreeCardEight, true);
-  assert.equal(round.settlement.moon8.returned, 510);
+  assert.equal(round.settlement.moon8.returned, 5100);
 });
 
 test('shoe reshuffle resets the road engine for a fresh shoe', () => {
@@ -173,7 +173,7 @@ test('shoe reshuffle resets the road engine for a fresh shoe', () => {
   const initialShoeNumber = g.shoeNumber;
   let reshuffled = false;
   for (let i = 0; i < 40 && !reshuffled; i += 1) {
-    g.placeChip('player', 5);
+    g.placeChip('player', 100);
     g.playRound();
     g.returnToBetting();
     if (g.shoeNumber > initialShoeNumber) reshuffled = true;

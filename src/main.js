@@ -5,11 +5,23 @@ import { renderChipRail, formatCurrency, CHIP_VALUES } from './ui/chips.js';
 import { RULES_HTML } from './ui/rulesContent.js';
 import { PayoutSettingsView } from './ui/payoutSettings.js';
 import { RoadGenieView } from './ui/roadGenieView.js';
+import { TrainingModes } from './ui/trainingModes.js';
 
+const appRoot = document.getElementById('app');
 const game = new GameState();
-const table = new TableView(document.getElementById('app'));
+const table = new TableView(appRoot);
 const roadmap = new RoadmapView(document.getElementById('scoreboard'));
-const genie = new RoadGenieView(document.getElementById('app'), game);
+const genie = new RoadGenieView(appRoot, game);
+const training = new TrainingModes({
+  app: appRoot,
+  game,
+  roadmap,
+  spotEls: table.spotEls,
+  onBoardChanged: () => {
+    roadmap.render(game);
+    refreshStats();
+  },
+});
 
 let selectedChip = CHIP_VALUES[1]; // default to $25
 
@@ -17,6 +29,7 @@ const el = {
   bankroll: document.getElementById('stat-bankroll'),
   net: document.getElementById('stat-net'),
   shoe: document.getElementById('stat-shoe'),
+  pen: document.getElementById('stat-pen'),
   totalBet: document.getElementById('total-bet'),
   balance: document.getElementById('balance'),
   penetration: document.getElementById('penetration-fill'),
@@ -87,8 +100,10 @@ function refreshChipRail() {
 let shownBankroll = STARTING_BANKROLL;
 
 function refreshStats() {
-  el.shoe.textContent = `#${game.shoeNumber} · ${game.history.length}h`;
-  el.penetration.style.width = `${Math.min(100, Math.round(game.shoe.penetration() * 100))}%`;
+  el.shoe.textContent = `Shoe #${game.shoeNumber} · ${game.history.length}h`;
+  const pct = Math.min(100, Math.round(game.shoe.penetration() * 100));
+  el.penetration.style.width = `${pct}%`;
+  if (el.pen) el.pen.textContent = `${pct}%`;
   animateBankroll(game.bankroll);
   refreshNet();
   refreshBetSummary();
@@ -241,6 +256,7 @@ el.btnDeal.addEventListener('click', async () => {
   refreshStats();
   roadmap.render(game);
   genie.render();
+  training.onHandComplete();
   jackpots.forEach(sparkleBurst);
 
   if (game.bankroll <= 0) {
@@ -261,6 +277,7 @@ el.btnDeal.addEventListener('click', async () => {
     locked = false;
     refreshBetSummary();
     refreshActionButtons();
+    training.onHandComplete();
   }, 1900);
 });
 

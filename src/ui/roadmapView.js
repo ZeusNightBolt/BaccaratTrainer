@@ -18,6 +18,7 @@ export class RoadmapView {
     this.beadEl = root.querySelector('#road-bead');
     this.bigEl = root.querySelector('#road-main');
     this.tickerEl = root.querySelector('#ticker-track');
+    this.forecastEls = Array.from(root.querySelectorAll('.fc-mark'));
     this.boardTop = root.querySelector('.board-top');
     this.derivedEls = {};
     for (const d of DERIVED) this.derivedEls[d.name] = root.querySelector(`#${d.id}`);
@@ -51,6 +52,30 @@ export class RoadmapView {
     }
 
     this.renderTicker(game.shoeRounds);
+    this.renderForecast(game.road);
+  }
+
+  // The Atlantic City "ask" cells: what each derived road's next mark would be if
+  // the coming result is Player vs Banker. R = red (pattern holds), B = blue (breaks).
+  renderForecast(road) {
+    if (!this.forecastEls.length) return;
+    const preds = { P: road.predict('P'), B: road.predict('B') };
+    const shapeFor = { bigEyeBoy: 'ring', smallRoad: 'dot', cockroachRoad: 'slash' };
+    for (const cell of this.forecastEls) {
+      const side = cell.dataset.if; // 'P' | 'B'
+      const roadName = cell.dataset.road;
+      const mark = preds[side][roadName];
+      cell.className = 'fc-mark';
+      cell.innerHTML = '';
+      if (!mark) {
+        cell.classList.add('fc-empty');
+        cell.textContent = '·';
+        continue;
+      }
+      const dot = document.createElement('i');
+      dot.className = `derived-cell shape-${shapeFor[roadName]} outcome-${mark}`;
+      cell.appendChild(dot);
+    }
   }
 
   // A glowing LED strip of the last results (newest on the right), like the

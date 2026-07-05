@@ -10,6 +10,34 @@ function buildEngine() {
   return engine;
 }
 
+test('predict forecasts the derived-road mark for a hypothetical next result', () => {
+  const engine = buildEngine();
+  // predict() must match what actually happens when that outcome is appended.
+  for (const next of ['B', 'P']) {
+    const forecast = engine.predict(next);
+    const clone = new RoadEngine();
+    for (const o of ['B', 'B', 'P', 'P', 'P', 'B', 'TIE', 'B', 'P', 'B', 'B']) clone.addResult(o);
+    clone.addResult(next);
+    // The forecast mark equals the last mark of each derived road after appending.
+    for (const [road, key] of [
+      ['bigEyeBoy', 'bigEyeBoy'],
+      ['smallRoad', 'smallRoad'],
+      ['cockroachRoad', 'cockroachRoad'],
+    ]) {
+      const grid = clone.derivedRoad(road);
+      if (forecast[key] === null) continue;
+      const last = grid[grid.length - 1];
+      assert.equal(forecast[key], last.outcome, `${road} forecast for next=${next}`);
+    }
+  }
+});
+
+test('predict returns nulls on an empty or too-short road', () => {
+  const engine = new RoadEngine();
+  const f = engine.predict('B');
+  assert.deepEqual(f, { bigEyeBoy: null, smallRoad: null, cockroachRoad: null });
+});
+
 test('Big Road groups streaks into columns and tallies ties on the trailing cell', () => {
   const engine = buildEngine();
   assert.equal(engine.columns.length, 5);
