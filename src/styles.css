@@ -172,15 +172,74 @@ button {
 
 .topbar-stats {
   display: flex;
+  align-items: stretch;
   gap: 6px;
   margin-left: auto;
   margin-right: 4px;
+}
+
+/* Live wallet HUD */
+.wallet {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 3px 11px 3px 8px;
+  border-radius: 11px;
+  background: linear-gradient(180deg, rgba(230, 198, 110, 0.14), rgba(230, 198, 110, 0.04));
+  border: 1px solid rgba(230, 198, 110, 0.32);
+  cursor: pointer;
+  transition: transform 0.16s var(--spring), border-color 0.16s var(--ease);
+}
+.wallet:hover {
+  border-color: rgba(230, 198, 110, 0.6);
+}
+.wallet:active {
+  transform: scale(0.97);
+}
+.wallet-chip {
+  font-size: 1.05rem;
+  color: var(--gold);
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5));
+  line-height: 1;
+}
+.wallet-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.1;
+}
+.wallet-value {
+  font-weight: 800;
+  font-size: 0.94rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--gold);
+  transition: color 0.3s var(--ease);
+}
+.wallet-value.flash-up {
+  color: var(--win);
+}
+.wallet-value.flash-down {
+  color: var(--danger);
+}
+.wallet-delta {
+  font-size: 0.56rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  color: var(--ink-mute);
+}
+.wallet-delta.up {
+  color: var(--win);
+}
+.wallet-delta.down {
+  color: var(--danger);
 }
 
 .stat {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
+  justify-content: center;
   line-height: 1.12;
   padding: 3px 9px;
   border-radius: 10px;
@@ -1445,12 +1504,34 @@ button {
   z-index: 40;
 }
 
+.bet-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2px 4px;
+  font-size: 0.68rem;
+  color: var(--ink-mute);
+  font-weight: 600;
+}
+.bet-summary-item b {
+  color: var(--ink);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  margin-left: 3px;
+}
+#total-bet {
+  color: var(--gold);
+}
+
 .chip-rail {
   display: flex;
   gap: 12px;
   justify-content: center;
-  padding: 4px 0 2px;
-  overflow-x: auto;
+  flex-wrap: wrap;
+  /* Extra top room so a selected chip's raise + glow never clips or spills out
+     of the dock; no horizontal scroll (five chips always fit). */
+  padding: 15px 8px 5px;
+  overflow: visible;
 }
 
 .action-bar {
@@ -1498,7 +1579,7 @@ button {
 .genie {
   position: fixed;
   right: max(10px, calc(50% - 320px + 10px));
-  bottom: 122px;
+  bottom: 176px; /* clears the chip dock (bet summary + rail + actions) */
   z-index: 60;
   display: flex;
   flex-direction: column;
@@ -1826,34 +1907,171 @@ button {
   margin-top: 4px;
 }
 
+.modal-foot {
+  padding: 0 17px 18px;
+}
+.modal-foot .action-btn {
+  width: 100%;
+}
+
+/* Session dashboard */
+.session-hero {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.session-hero-main .session-net {
+  font-size: 1.9rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.session-net.up {
+  color: var(--win);
+}
+.session-net.down {
+  color: var(--danger);
+}
+.session-net.flat {
+  color: var(--gold);
+}
+.session-hero-main .session-net-label {
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-mute);
+  font-weight: 700;
+}
+.session-bankroll {
+  text-align: right;
+}
+.session-bankroll .sb-value {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--gold);
+  font-variant-numeric: tabular-nums;
+}
+.session-bankroll .sb-label {
+  font-size: 0.58rem;
+  color: var(--ink-mute);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 700;
+}
+
+.sparkline {
+  width: 100%;
+  height: 64px;
+  margin-bottom: 12px;
+  border-radius: var(--r-sm);
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--hairline);
+  display: block;
+}
+.sparkline .spark-area {
+  fill: url(#sparkFill);
+}
+.sparkline .spark-line {
+  fill: none;
+  stroke: var(--gold);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+.sparkline .spark-base {
+  stroke: var(--hairline-strong);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+  vector-effect: non-scaling-stroke;
+}
+.sparkline-empty {
+  display: grid;
+  place-items: center;
+  height: 64px;
+  margin-bottom: 12px;
+  border-radius: var(--r-sm);
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px dashed var(--hairline-strong);
+  color: var(--ink-mute);
+  font-size: 0.74rem;
+}
+
+.outcome-bar {
+  display: flex;
+  height: 10px;
+  border-radius: 99px;
+  overflow: hidden;
+  margin-bottom: 4px;
+  background: var(--surface);
+}
+.outcome-bar .seg-banker {
+  background: var(--banker);
+}
+.outcome-bar .seg-player {
+  background: var(--player);
+}
+.outcome-bar .seg-tie {
+  background: var(--tie);
+}
+.outcome-bar-legend {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.62rem;
+  color: var(--ink-dim);
+  font-weight: 700;
+  margin-bottom: 14px;
+}
+.outcome-bar-legend .obl-banker {
+  color: var(--banker-hi);
+}
+.outcome-bar-legend .obl-player {
+  color: var(--player-hi);
+}
+.outcome-bar-legend .obl-tie {
+  color: var(--tie-hi);
+}
+
 .stats-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-bottom: 10px;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 4px;
 }
 
 .stats-tile {
   background: var(--surface);
   border: 1px solid var(--hairline);
   border-radius: var(--r-md);
-  padding: 12px;
+  padding: 10px 8px;
   text-align: center;
 }
 
 .stats-tile .tile-value {
-  font-size: 1.3rem;
+  font-size: 1.05rem;
   font-weight: 800;
-  color: var(--gold);
+  color: var(--ink);
   font-variant-numeric: tabular-nums;
+}
+.stats-tile .tile-value.gold {
+  color: var(--gold);
+}
+.stats-tile .tile-value.up {
+  color: var(--win);
+}
+.stats-tile .tile-value.down {
+  color: var(--danger);
 }
 
 .stats-tile .tile-label {
-  font-size: 0.64rem;
+  font-size: 0.56rem;
   color: var(--ink-mute);
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.03em;
   font-weight: 700;
+  margin-top: 2px;
 }
 
 /* ---------- Toast ---------- */

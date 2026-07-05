@@ -15,13 +15,16 @@ let selectedChip = CHIP_VALUES[1]; // default to $25
 
 const el = {
   bankroll: document.getElementById('stat-bankroll'),
+  net: document.getElementById('stat-net'),
   shoe: document.getElementById('stat-shoe'),
+  totalBet: document.getElementById('total-bet'),
+  balance: document.getElementById('balance'),
   penetration: document.getElementById('penetration-fill'),
   chipRail: document.getElementById('chip-rail'),
   betSpots: Array.from(document.querySelectorAll('.bet-spot')),
   btnClear: document.getElementById('btn-clear'),
   btnRebet: document.getElementById('btn-rebet'),
-  btnDouble: document.getElementById('btn-double'),
+  btnUndo: document.getElementById('btn-undo'),
   btnDeal: document.getElementById('btn-deal'),
   rulesModal: document.getElementById('rules-modal'),
   rulesBody: document.getElementById('rules-body'),
@@ -29,14 +32,36 @@ const el = {
   rulesClose: document.getElementById('rules-close'),
   statsModal: document.getElementById('stats-modal'),
   statsBody: document.getElementById('stats-body'),
-  btnStats: document.getElementById('btn-stats'),
+  btnSession: document.getElementById('btn-session'),
   statsClose: document.getElementById('stats-close'),
+  btnResetSession: document.getElementById('btn-reset-session'),
   settingsModal: document.getElementById('settings-modal'),
   btnSettings: document.getElementById('btn-settings'),
   settingsClose: document.getElementById('settings-close'),
   payoutSun7: document.getElementById('payout-sun7'),
   payoutMoon8: document.getElementById('payout-moon8'),
 };
+
+const SESSION_KEY = 'baccaratTrainer.session.v1';
+
+function saveSession() {
+  try {
+    window.localStorage.setItem(SESSION_KEY, JSON.stringify(game.serialize()));
+  } catch {
+    /* storage unavailable (private mode / disabled) — carry on in-memory */
+  }
+}
+
+function loadSavedSession() {
+  try {
+    const raw = window.localStorage.getItem(SESSION_KEY);
+    if (!raw) return;
+    game.loadSession(JSON.parse(raw));
+    shownBankroll = game.bankroll;
+  } catch {
+    /* corrupt or unavailable — start fresh */
+  }
+}
 
 let locked = false;
 
@@ -65,6 +90,27 @@ function refreshStats() {
   el.shoe.textContent = `#${game.shoeNumber} · ${game.history.length}h`;
   el.penetration.style.width = `${Math.min(100, Math.round(game.shoe.penetration() * 100))}%`;
   animateBankroll(game.bankroll);
+  refreshNet();
+  refreshBetSummary();
+}
+
+function refreshNet() {
+  const net = game.bankroll - game.startingBankroll;
+  el.net.classList.remove('up', 'down');
+  if (net > 0) {
+    el.net.textContent = `+${formatCurrency(net)}`;
+    el.net.classList.add('up');
+  } else if (net < 0) {
+    el.net.textContent = `-${formatCurrency(-net)}`;
+    el.net.classList.add('down');
+  } else {
+    el.net.textContent = 'Even';
+  }
+}
+
+function refreshBetSummary() {
+  el.totalBet.textContent = formatCurrency(game.totalWagered);
+  el.balance.textContent = formatCurrency(game.bankroll);
 }
 
 // Count the bankroll up/down over ~500ms with a colour flash on change.
@@ -118,16 +164,23 @@ function sparkleBurst(spotEl) {
 
 function refreshActionButtons() {
   const betting = game.canBet() && !locked;
-  const hasBet = game.totalWagered > 0;
+  const hasBet = game.hasBets();
   const hasLastBet = Object.keys(game.lastBets).length > 0;
   el.btnDeal.disabled = !betting || !game.hasValidBet();
   el.btnClear.disabled = !betting || !hasBet;
+  el.btnUndo.disabled = !betting || !hasBet;
   el.btnRebet.disabled = !betting || !hasLastBet || hasBet;
-  el.btnDouble.disabled = !betting || !hasBet;
   el.btnSettings.disabled = !betting;
   el.betSpots.forEach((spotEl) => {
     spotEl.disabled = !betting;
   });
+}
+
+// Reflect a bet change across the felt, HUD and buttons in one call.
+function afterBetChange() {
+  table.updateBets(game.bets);
+  refreshBetSummary();
+  refreshActionButtons();
 }
 
 function toast(message) {
@@ -155,34 +208,25 @@ el.betSpots.forEach((spotEl) => {
     if (!game.canBet() || locked) return;
     withErrorToast(() => {
       game.placeChip(spotEl.dataset.spot, selectedChip);
-      table.updateBets(game.bets);
-      refreshActionButtons();
+      afterBetChange();
     });
   });
 });
 
 el.btnClear.addEventListener('click', () => {
   game.clearAllBets();
-  table.updateBets(game.bets);
-  refreshActionButtons();
+  afterBetChange();
+});
+
+el.btnUndo.addEventListener('click', () => {
+  game.undoLastChip();
+  afterBetChange();
 });
 
 el.btnRebet.addEventListener('click', () => {
   withErrorToast(() => {
     game.rebet();
-    table.updateBets(game.bets);
-    refreshActionButtons();
-  });
-});
-
-el.btnDouble.addEventListener('click', () => {
-  withErrorToast(() => {
-    const current = { ...game.bets };
-    for (const [spot, amount] of Object.entries(current)) {
-      game.placeChip(spot, amount);
-    }
-    table.updateBets(game.bets);
-    refreshActionButtons();
+    afterBetChange();
   });
 });
 
@@ -201,15 +245,21 @@ el.btnDeal.addEventListener('click', async () => {
 
   if (game.bankroll <= 0) {
     game.bankroll = STARTING_BANKROLL;
+    game.startingBankroll = STARTING_BANKROLL;
+    game.peakBankroll = STARTING_BANKROLL;
+    game.history = [];
     shownBankroll = STARTING_BANKROLL;
     toast(`Bankroll reset to ${formatCurrency(STARTING_BANKROLL)} for continued practice`);
     refreshStats();
   }
 
+  saveSession();
+
   setTimeout(() => {
     game.returnToBetting();
     table.updateBets(game.bets);
     locked = false;
+    refreshBetSummary();
     refreshActionButtons();
   }, 1900);
 });
@@ -230,23 +280,105 @@ el.rulesModal.addEventListener('click', (e) => {
   if (e.target === el.rulesModal) closeModal(el.rulesModal);
 });
 
-el.btnStats.addEventListener('click', () => {
+function streakLabel(streak) {
+  if (!streak.outcome) return '—';
+  const name = { PLAYER: 'P', BANKER: 'B', TIE: 'T' }[streak.outcome];
+  return `${streak.len}×${name}`;
+}
+
+function sparkline(curve) {
+  if (curve.length < 2) {
+    return '<div class="sparkline-empty">Play a few hands to chart your bankroll</div>';
+  }
+  const W = 100;
+  const H = 64;
+  const pad = 6;
+  const min = Math.min(...curve);
+  const max = Math.max(...curve);
+  const range = max - min || 1;
+  const x = (i) => (i / (curve.length - 1)) * W;
+  const y = (v) => H - pad - ((v - min) / range) * (H - pad * 2);
+  const pts = curve.map((v, i) => `${x(i).toFixed(2)},${y(v).toFixed(2)}`);
+  const line = pts.join(' ');
+  const area = `${x(0).toFixed(2)},${H} ${line} ${x(curve.length - 1).toFixed(2)},${H}`;
+  const baseY = y(curve[0]).toFixed(2);
+  return `
+    <svg class="sparkline" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="rgba(230,198,110,0.28)" />
+          <stop offset="100%" stop-color="rgba(230,198,110,0)" />
+        </linearGradient>
+      </defs>
+      <line class="spark-base" x1="0" y1="${baseY}" x2="${W}" y2="${baseY}" />
+      <polygon class="spark-area" points="${area}" />
+      <polyline class="spark-line" points="${line}" />
+    </svg>`;
+}
+
+function renderSession() {
   const s = game.stats();
+  const net = s.netSinceStart;
+  const netCls = net > 0 ? 'up' : net < 0 ? 'down' : 'flat';
+  const netText = net > 0 ? `+${formatCurrency(net)}` : net < 0 ? `-${formatCurrency(-net)}` : 'Even';
+  const total = Math.max(1, s.handsPlayed);
+  const pct = (n) => `${Math.round((n / total) * 100)}%`;
+
   el.statsBody.innerHTML = `
+    <div class="session-hero">
+      <div class="session-hero-main">
+        <div class="session-net ${netCls}">${netText}</div>
+        <div class="session-net-label">Net this session</div>
+      </div>
+      <div class="session-bankroll">
+        <div class="sb-value">${formatCurrency(game.bankroll)}</div>
+        <div class="sb-label">Bankroll</div>
+      </div>
+    </div>
+
+    ${sparkline(s.curve)}
+
+    <div class="outcome-bar">
+      <div class="seg-banker" style="width:${pct(s.wins.banker)}"></div>
+      <div class="seg-player" style="width:${pct(s.wins.player)}"></div>
+      <div class="seg-tie" style="width:${pct(s.wins.tie)}"></div>
+    </div>
+    <div class="outcome-bar-legend">
+      <span class="obl-banker">Banker ${s.wins.banker}</span>
+      <span class="obl-player">Player ${s.wins.player}</span>
+      <span class="obl-tie">Tie ${s.wins.tie}</span>
+    </div>
+
     <div class="stats-grid">
-      <div class="stats-tile"><div class="tile-value">${s.handsPlayed}</div><div class="tile-label">Hands Played</div></div>
-      <div class="stats-tile"><div class="tile-value">${formatCurrency(s.netSinceStart)}</div><div class="tile-label">Net Since Start</div></div>
-      <div class="stats-tile"><div class="tile-value">${s.wins.banker}</div><div class="tile-label">Banker Wins</div></div>
-      <div class="stats-tile"><div class="tile-value">${s.wins.player}</div><div class="tile-label">Player Wins</div></div>
-      <div class="stats-tile"><div class="tile-value">${s.wins.tie}</div><div class="tile-label">Ties</div></div>
-      <div class="stats-tile"><div class="tile-value">${formatCurrency(game.bankroll)}</div><div class="tile-label">Current Bankroll</div></div>
+      <div class="stats-tile"><div class="tile-value">${s.handsPlayed}</div><div class="tile-label">Hands</div></div>
+      <div class="stats-tile"><div class="tile-value ${s.biggestWin > 0 ? 'up' : ''}">${formatCurrency(s.biggestWin)}</div><div class="tile-label">Best Hand</div></div>
+      <div class="stats-tile"><div class="tile-value gold">${formatCurrency(s.peakBankroll)}</div><div class="tile-label">Peak</div></div>
+      <div class="stats-tile"><div class="tile-value">${streakLabel(s.currentStreak)}</div><div class="tile-label">Streak Now</div></div>
+      <div class="stats-tile"><div class="tile-value">${streakLabel(s.longestStreak)}</div><div class="tile-label">Longest Run</div></div>
+      <div class="stats-tile"><div class="tile-value">#${game.shoeNumber}</div><div class="tile-label">Shoe</div></div>
     </div>
   `;
+}
+
+el.btnSession.addEventListener('click', () => {
+  renderSession();
   openModal(el.statsModal);
 });
 el.statsClose.addEventListener('click', () => closeModal(el.statsModal));
 el.statsModal.addEventListener('click', (e) => {
   if (e.target === el.statsModal) closeModal(el.statsModal);
+});
+
+el.btnResetSession.addEventListener('click', () => {
+  game.bankroll = STARTING_BANKROLL;
+  game.startingBankroll = STARTING_BANKROLL;
+  game.peakBankroll = STARTING_BANKROLL;
+  game.history = [];
+  shownBankroll = STARTING_BANKROLL;
+  saveSession();
+  refreshStats();
+  renderSession();
+  toast('Session reset');
 });
 
 el.btnSettings.addEventListener('click', () => {
@@ -259,6 +391,7 @@ el.settingsModal.addEventListener('click', (e) => {
   if (e.target === el.settingsModal) closeModal(el.settingsModal);
 });
 
+loadSavedSession();
 refreshChipRail();
 refreshStats();
 refreshActionButtons();

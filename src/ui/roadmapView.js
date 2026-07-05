@@ -36,7 +36,7 @@ export class RoadmapView {
 
   render(game) {
     const beadCells = beadPlateGrid(
-      game.history.map((r) => ({
+      game.shoeRounds.map((r) => ({
         outcome: OUTCOME_CODE[r.hand.outcome],
         playerPair: r.hand.playerPair,
         bankerPair: r.hand.bankerPair,

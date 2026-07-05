@@ -19,17 +19,19 @@
         <span class="brand-name">Baccarat Trainer</span>
       </div>
       <div class="topbar-stats">
-        <div class="stat">
-          <span class="stat-label">Bankroll</span>
-          <span class="stat-value" id="stat-bankroll">$1,000</span>
-        </div>
+        <button class="wallet" id="btn-session" aria-label="Session record">
+          <span class="wallet-chip">&#9679;</span>
+          <span class="wallet-copy">
+            <span class="wallet-value" id="stat-bankroll">$1,000</span>
+            <span class="wallet-delta" id="stat-net">Even</span>
+          </span>
+        </button>
         <div class="stat">
           <span class="stat-label">Shoe</span>
           <span class="stat-value" id="stat-shoe">#1 &middot; 0h</span>
         </div>
       </div>
       <div class="topbar-actions">
-        <button class="icon-btn" id="btn-stats" title="Statistics" aria-label="Statistics">&#128202;</button>
         <button class="icon-btn" id="btn-settings" title="Payout settings" aria-label="Payout settings">&#9881;</button>
         <button class="icon-btn" id="btn-rules" title="How to play" aria-label="How to play">&#8505;</button>
       </div>
@@ -175,11 +177,15 @@
     </main>
 
     <footer class="chip-dock">
+      <div class="bet-summary">
+        <span class="bet-summary-item">Total Bet <b id="total-bet">$0</b></span>
+        <span class="bet-summary-item">Balance <b id="balance">$1,000</b></span>
+      </div>
       <div class="chip-rail" id="chip-rail"></div>
       <div class="action-bar">
         <button class="action-btn" id="btn-clear">Clear</button>
+        <button class="action-btn" id="btn-undo">Undo</button>
         <button class="action-btn" id="btn-rebet">Rebet</button>
-        <button class="action-btn" id="btn-double">Double</button>
         <button class="action-btn action-btn-primary" id="btn-deal">Deal</button>
       </div>
     </footer>
@@ -245,10 +251,13 @@
   <div class="modal-overlay" id="stats-modal" hidden>
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="stats-title">
       <div class="modal-head">
-        <h2 id="stats-title">Session Statistics</h2>
+        <h2 id="stats-title">Session</h2>
         <button class="modal-close" id="stats-close" aria-label="Close">&times;</button>
       </div>
       <div class="modal-body" id="stats-body"></div>
+      <div class="modal-foot">
+        <button class="action-btn" id="btn-reset-session">Reset Session</button>
+      </div>
     </div>
   </div>
 
