@@ -1,0 +1,19 @@
+{
+  "name": "baccarat-trainer",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "A mini-baccarat trainer modeled on real Atlantic City / Resorts World EZ Baccarat tables, with Sun 7 / Moon 8 side bets and live Big Road / Bead Plate / Big Eye Boy / Small Road / Cockroach Road scoreboards.",
+  "scripts": {
+    "start": "http-server -p 8080 -c-1 .",
+    "test": "node --test src/game/*.test.js",
+    "lint": "eslint ."
+  },
+  "devDependencies": {
+    "eslint": "^9.17.0",
+    "http-server": "^14.1.1"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
