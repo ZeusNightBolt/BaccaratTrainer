@@ -2285,6 +2285,132 @@ button {
 .genie-ask:active {
   transform: scale(0.97);
 }
+.genie-ask.is-rerolling {
+  animation: genieShake 0.42s var(--ease);
+}
+@keyframes genieShake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-3px) rotate(-1.2deg); }
+  40% { transform: translateX(3px) rotate(1.2deg); }
+  60% { transform: translateX(-2px); }
+  80% { transform: translateX(2px); }
+}
+
+/* The orb has a pulse — it beats to the Genie's mood */
+.genie-orb {
+  animation: genieHeartbeat 2.4s var(--ease) infinite;
+}
+.genie-orb[data-rate='quick'] {
+  animation-duration: 1.5s;
+}
+.genie-orb[data-rate='racing'] {
+  animation-duration: 0.82s;
+}
+.genie-orb[data-rate='racing'] .genie-orb-pulse {
+  animation-duration: 1.4s;
+}
+.genie-orb[data-rate='quick'] .genie-orb-pulse {
+  animation-duration: 2s;
+}
+@keyframes genieHeartbeat {
+  0%, 100% { transform: scale(1); }
+  12% { transform: scale(1.11); }
+  24% { transform: scale(1); }
+  36% { transform: scale(1.06); }
+  48% { transform: scale(1); }
+}
+
+/* Every thought slides in on a little stagger, so the panel feels like it's thinking */
+.genie-body > * {
+  animation: genieReveal 0.34s var(--spring) both;
+}
+@keyframes genieReveal {
+  from { opacity: 0; transform: translateY(7px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Emotion + beating heart */
+.genie-emotion {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  width: fit-content;
+  padding: 5px 11px 5px 9px;
+  border-radius: 99px;
+  background: rgba(157, 120, 255, 0.12);
+  border: 1px solid rgba(157, 120, 255, 0.3);
+}
+.genie-heart {
+  font-size: 1rem;
+  line-height: 1;
+  transform-origin: center;
+  animation: genieThump 2.2s var(--ease) infinite;
+}
+.genie-emotion[data-rate='quick'] .genie-heart {
+  animation-duration: 1.4s;
+}
+.genie-emotion[data-rate='racing'] .genie-heart {
+  animation-duration: 0.78s;
+}
+@keyframes genieThump {
+  0%, 100% { transform: scale(1); }
+  10% { transform: scale(1.32); }
+  20% { transform: scale(1); }
+  30% { transform: scale(1.18); }
+  40% { transform: scale(1); }
+}
+.genie-emo-face {
+  font-size: 0.98rem;
+  line-height: 1;
+}
+.genie-emo-label {
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #d9b6ff;
+}
+
+/* Stake advice — trim on bad vibes, press when giddy */
+.genie-stake {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 11px;
+  border-radius: 10px;
+}
+.genie-stake-head {
+  font-weight: 800;
+  font-size: 0.8rem;
+}
+.genie-stake-note {
+  font-size: 0.72rem;
+  font-style: italic;
+  color: var(--ink-dim);
+}
+.genie-stake.stake-trim {
+  background: rgba(255, 176, 60, 0.13);
+  border: 1px solid rgba(255, 176, 60, 0.5);
+}
+.genie-stake.stake-trim .genie-stake-head {
+  color: #ffcf8a;
+}
+.genie-stake.stake-press {
+  background: rgba(52, 209, 127, 0.12);
+  border: 1px solid rgba(52, 209, 127, 0.45);
+}
+.genie-stake.stake-press .genie-stake-head {
+  color: #a9f0cc;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .genie-orb,
+  .genie-heart,
+  .genie-body > *,
+  .genie-ask.is-rerolling {
+    animation: none;
+  }
+}
 
 /* Genie's pick, lit on the felt in a mystic violet while the panel is open */
 .bet-spot.genie-pick::after {
