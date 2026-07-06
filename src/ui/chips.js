@@ -1,5 +1,6 @@
-// High-limit chip denominations ($100 min to match the table minimum).
-export const CHIP_VALUES = [100, 500, 1000, 5000, 25000];
+// Chip denominations. The $5 and $25 chips are for topping up the side bets
+// (Sun 7 / Panda 8 / Dragon Bonus) in small increments; $100 is the main-game min.
+export const CHIP_VALUES = [5, 25, 100, 500, 1000, 5000, 25000];
 
 export function formatCurrency(amount) {
   return `$${amount.toLocaleString('en-US')}`;

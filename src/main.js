@@ -1,11 +1,12 @@
 import { GameState, STARTING_BANKROLL } from './game/state.js';
 import { TableView } from './ui/table.js';
 import { RoadmapView } from './ui/roadmapView.js';
-import { renderChipRail, formatCurrency, CHIP_VALUES } from './ui/chips.js';
+import { renderChipRail, formatCurrency } from './ui/chips.js';
 import { RULES_HTML } from './ui/rulesContent.js';
 import { PayoutSettingsView } from './ui/payoutSettings.js';
 import { RoadGenieView } from './ui/roadGenieView.js';
 import { TrainingModes } from './ui/trainingModes.js';
+import { flyChip, coinShower, screenFlash } from './ui/effects.js';
 
 const appRoot = document.getElementById('app');
 const game = new GameState();
@@ -23,7 +24,7 @@ const training = new TrainingModes({
   },
 });
 
-let selectedChip = CHIP_VALUES[1]; // default to $25
+let selectedChip = 100; // default to the $100 main-game minimum
 
 const el = {
   bankroll: document.getElementById('stat-bankroll'),
@@ -224,6 +225,8 @@ el.betSpots.forEach((spotEl) => {
     withErrorToast(() => {
       game.placeChip(spotEl.dataset.spot, selectedChip);
       afterBetChange();
+      // a chip arcs from the rail to the spot you tapped
+      flyChip(el.chipRail.querySelector('.chip.selected'), spotEl, selectedChip);
     });
   });
 });
@@ -258,6 +261,16 @@ el.btnDeal.addEventListener('click', async () => {
   genie.render();
   training.onHandComplete();
   jackpots.forEach(sparkleBurst);
+
+  // Celebrate a win in proportion to what it paid: coins pour from every winning
+  // spot into the wallet, and a headline win flashes the whole screen gold.
+  if (round.netChange > 0) {
+    const winEls = Object.values(table.spotEls).filter((s) => s.classList.contains('spot-win'));
+    const coins = Math.min(28, 7 + Math.floor(round.netChange / 400));
+    const per = Math.max(3, Math.ceil(coins / Math.max(1, winEls.length)));
+    winEls.forEach((s) => coinShower(s, el.bankroll, per));
+    if (round.netChange >= 2000 || jackpots.length) screenFlash('gold');
+  }
 
   if (game.bankroll <= 0) {
     game.bankroll = STARTING_BANKROLL;
