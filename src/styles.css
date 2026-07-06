@@ -1052,6 +1052,31 @@ button {
   }
 }
 
+/* The newest coin drops onto the board — the core-loop moment feels stamped */
+.road-cell.is-latest,
+.derived-cell.is-latest {
+  animation: coinDrop 0.36s var(--spring) both;
+}
+@keyframes coinDrop {
+  0% {
+    transform: scale(0.25);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.12);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .road-cell.is-latest,
+  .derived-cell.is-latest {
+    animation: none;
+  }
+}
+
 /* Derived roads row */
 .derived-roads {
   display: grid;
@@ -1404,19 +1429,70 @@ button {
   text-align: center;
 }
 
-.result-banner .banner-sub {
+.result-banner .banner-main {
   display: block;
+}
+
+.result-banner .banner-sub {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 6px;
   font-family: var(--font-ui);
   font-weight: 700;
   font-size: 0.64rem;
   letter-spacing: 0.04em;
   color: var(--gold-inlay-hi);
-  margin-top: 2px;
+  margin-top: 3px;
+}
+
+.result-banner .banner-amount {
+  font-size: 0.86rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.result-banner .banner-amount.up {
+  color: var(--pos, #4fe0a0);
+}
+.result-banner .banner-amount.down {
+  color: var(--neg, #ff6a5c);
+}
+.result-banner .banner-amount.push {
+  color: var(--ink-dim);
+}
+.result-banner .banner-bonus {
+  color: var(--gold-inlay-hi);
+  opacity: 0.9;
 }
 
 .result-banner.show {
   opacity: 1;
   transform: translate(-50%, -50%) scale(1);
+}
+/* A headline win ($2k+) gets an extra gold flare + a bigger pop */
+.result-banner.is-big {
+  border-color: var(--gold);
+  box-shadow: var(--sh-3), 0 0 26px rgba(230, 198, 110, 0.5);
+  animation: bannerFlare 0.5s var(--spring);
+}
+@keyframes bannerFlare {
+  0% { transform: translate(-50%, -50%) scale(0.7); }
+  55% { transform: translate(-50%, -50%) scale(1.12); }
+  100% { transform: translate(-50%, -50%) scale(1); }
+}
+
+/* A natural 8 or 9 — the drama of baccarat — flares gold */
+.hand-total.is-natural {
+  color: #1a1305;
+  background: radial-gradient(circle at 50% 35%, #ffe8a8, var(--gold) 70%);
+  border-color: var(--gold);
+  box-shadow: 0 0 12px rgba(230, 198, 110, 0.7);
+  animation: naturalPop 0.42s var(--spring);
+}
+@keyframes naturalPop {
+  0% { transform: scale(0.6); }
+  55% { transform: scale(1.22); }
+  100% { transform: scale(1); }
 }
 
 /* ============================================================
@@ -2025,7 +2101,7 @@ button {
 .genie {
   position: fixed;
   right: max(10px, calc(50% - 320px + 10px));
-  bottom: 176px; /* clears the chip dock (bet summary + rail + actions) */
+  bottom: 250px; /* sits above the whole felt bet row so it never blocks a Banker tap */
   z-index: 60;
   display: flex;
   flex-direction: column;
@@ -2320,6 +2396,45 @@ button {
   48% { transform: scale(1); }
 }
 
+/* The orb's aura glows in the colour of whatever it currently feels */
+.genie-orb[data-pick='banker'] .genie-orb-pulse {
+  border-color: var(--banker-hi);
+}
+.genie-orb[data-pick='banker'] {
+  box-shadow: 0 8px 26px rgba(255, 71, 60, 0.42), var(--sh-2);
+}
+.genie-orb[data-pick='player'] .genie-orb-pulse {
+  border-color: var(--player-hi);
+}
+.genie-orb[data-pick='player'] {
+  box-shadow: 0 8px 26px rgba(46, 155, 255, 0.42), var(--sh-2);
+}
+.genie-orb[data-pick='tie'] .genie-orb-pulse {
+  border-color: var(--tie-hi);
+}
+.genie-orb[data-pick='tie'] {
+  box-shadow: 0 8px 26px rgba(52, 224, 127, 0.42), var(--sh-2);
+}
+
+/* "I have a hunch for you" — a live badge when the Genie is calling a hedge or a trim */
+.genie-orb.has-signal::after {
+  content: '';
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: #ff5a72;
+  border: 2px solid #0b0e13;
+  box-shadow: 0 0 9px #ff5a72;
+  animation: genieSignalPing 1s ease-in-out infinite;
+}
+@keyframes genieSignalPing {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.35); opacity: 0.55; }
+}
+
 /* Every thought slides in on a little stagger, so the panel feels like it's thinking */
 .genie-body > * {
   animation: genieReveal 0.34s var(--spring) both;
@@ -2407,7 +2522,10 @@ button {
   .genie-orb,
   .genie-heart,
   .genie-body > *,
-  .genie-ask.is-rerolling {
+  .genie-ask.is-rerolling,
+  .genie-orb.has-signal::after,
+  .hand-total.is-natural,
+  .result-banner.is-big {
     animation: none;
   }
 }

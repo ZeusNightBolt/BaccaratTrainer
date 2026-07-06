@@ -38,7 +38,9 @@ export class TableView {
     this.bankerCards.innerHTML = '';
     this.playerTotal.textContent = '';
     this.bankerTotal.textContent = '';
-    this.resultBanner.classList.remove('show');
+    this.playerTotal.classList.remove('is-natural');
+    this.bankerTotal.classList.remove('is-natural');
+    this.resultBanner.classList.remove('show', 'is-big');
     this.resultBanner.textContent = '';
     for (const el of Object.values(this.spotEls)) {
       el.classList.remove('spot-win', 'spot-push', 'spot-lose');
@@ -61,7 +63,10 @@ export class TableView {
       await wait(CARD_STEP_MS - FLIP_DELAY_MS);
       const cardsSoFar = (step.hand === 'player' ? hand.player : hand.banker).slice(0, step.index + 1);
       const totalEl = step.hand === 'player' ? this.playerTotal : this.bankerTotal;
-      totalEl.textContent = String(handTotal(cardsSoFar));
+      const total = handTotal(cardsSoFar);
+      totalEl.textContent = String(total);
+      // An 8 or 9 is the drama of baccarat — let the total flare gold.
+      totalEl.classList.toggle('is-natural', total >= 8);
     }
   }
 
@@ -74,15 +79,26 @@ export class TableView {
     if (hand.outcome === 'PLAYER' && hand.playerThreeCardEight) text += ' \u{1F311} Moon 8!';
 
     // Name a winning bonus tier so the scaling paytable is learnable through play.
-    let sub = '';
+    let bonusText = '';
     const bonus = settlement.playerBonus?.result === 'win' ? settlement.playerBonus
       : settlement.bankerBonus?.result === 'win' ? settlement.bankerBonus : null;
     if (bonus?.tier) {
       const side = settlement.playerBonus?.result === 'win' ? 'Player' : 'Banker';
-      sub = `${side} Bonus · ${bonus.tier} · ${bonus.mult}:1`;
+      bonusText = `${side} Bonus · ${bonus.tier} · ${bonus.mult}:1`;
     }
 
-    this.resultBanner.innerHTML = `${escapeHtml(text)}${sub ? `<span class="banner-sub">${escapeHtml(sub)}</span>` : ''}`;
+    // Money is the reward — always surface the net result of the hand.
+    const net = round.netChange || 0;
+    const amount = net > 0
+      ? `<span class="banner-amount up">+${formatCurrency(net)}</span>`
+      : net < 0
+        ? `<span class="banner-amount down">-${formatCurrency(-net)}</span>`
+        : `<span class="banner-amount push">Push</span>`;
+
+    this.resultBanner.classList.toggle('is-big', net >= 2000);
+    this.resultBanner.innerHTML =
+      `<span class="banner-main">${escapeHtml(text)}</span>` +
+      `<span class="banner-sub">${amount}${bonusText ? ` <span class="banner-bonus">· ${escapeHtml(bonusText)}</span>` : ''}</span>`;
     this.resultBanner.classList.add('show');
 
     const jackpots = [];

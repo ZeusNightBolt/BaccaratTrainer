@@ -52,8 +52,9 @@ export class RoadGenieView {
     this.reading = consultGenie(this.game);
     this.paint();
     this.applyHighlight();
-    // the orb beats to the Genie's mood, even while closed
+    // the orb beats to the Genie's mood and glows in its pick's colour, even while closed
     this.orb.dataset.rate = this.reading.heartRate;
+    this.orb.dataset.pick = this.reading.main.spot;
     // Nudge the user (orb badge) when the Genie is calling a bonus hedge or a trim.
     if (this.panel.hidden) this.orb.classList.toggle('has-signal', !!this.reading.bonus || !!this.reading.stake);
   }
@@ -119,7 +120,11 @@ export class RoadGenieView {
 
   applyHighlight() {
     this.clearHighlight();
-    if (this.panel.hidden || !this.reading || !this.game.canBet()) return;
+    // Keep the Genie's pick lit on the felt whether the panel is open or closed, so
+    // the "look at the felt" payoff survives closing the panel to place your chip.
+    // Skip only when there's nothing to show, betting is closed, or the Genie is
+    // hidden entirely (Drill mode → no client rects).
+    if (!this.reading || !this.game.canBet() || this.orb.getClientRects().length === 0) return;
     const main = this.spotEls[this.reading.main.spot];
     if (main) main.classList.add('genie-pick');
     if (this.reading.bonus) {
