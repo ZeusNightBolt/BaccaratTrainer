@@ -2182,6 +2182,146 @@ button {
   padding-top: 8px;
 }
 
+/* Genie oracle — mystic recommendation */
+.genie-mood {
+  margin: 0 0 9px;
+  font-style: italic;
+  font-size: 0.82rem;
+  color: #d9b6ff;
+}
+.genie-rec {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  padding: 9px 13px;
+  border-radius: 12px;
+  margin-bottom: 9px;
+  border: 1px solid var(--hairline-strong);
+  background: rgba(255, 255, 255, 0.05);
+}
+.genie-rec-lead {
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-weight: 800;
+  color: var(--ink-mute);
+}
+.genie-rec-spot {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.3rem;
+  line-height: 1;
+}
+.genie-rec.pick-banker {
+  border-color: rgba(255, 71, 60, 0.5);
+  background: rgba(255, 71, 60, 0.12);
+}
+.genie-rec.pick-banker .genie-rec-spot {
+  color: var(--banker-hi);
+}
+.genie-rec.pick-player {
+  border-color: rgba(46, 155, 255, 0.5);
+  background: rgba(46, 155, 255, 0.12);
+}
+.genie-rec.pick-player .genie-rec-spot {
+  color: var(--player-hi);
+}
+.genie-rec.pick-tie {
+  border-color: rgba(52, 224, 127, 0.5);
+  background: rgba(52, 224, 127, 0.12);
+}
+.genie-rec.pick-tie .genie-rec-spot {
+  color: var(--tie-hi);
+}
+
+.genie-bonus {
+  margin-top: 9px;
+  padding: 8px 11px;
+  border-radius: 10px;
+  background: linear-gradient(150deg, rgba(216, 180, 90, 0.16), rgba(0, 0, 0, 0.2));
+  border: 1px solid rgba(216, 180, 90, 0.45);
+}
+.genie-bonus-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--gold-inlay-hi);
+  font-weight: 800;
+  font-size: 0.86rem;
+}
+.genie-bonus-tag {
+  font-size: 0.56rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 2px 7px;
+  border-radius: 99px;
+  background: rgba(216, 180, 90, 0.25);
+  color: var(--gold-inlay-hi);
+}
+.genie-bonus-note {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.72rem;
+  color: var(--ink-dim);
+  font-style: italic;
+}
+
+.genie-ask {
+  width: 100%;
+  margin-top: 11px;
+  padding: 9px;
+  border-radius: var(--r-sm);
+  border: 1px solid rgba(157, 120, 255, 0.55);
+  background: linear-gradient(180deg, rgba(120, 80, 200, 0.35), rgba(80, 50, 150, 0.25));
+  color: #ecdcff;
+  font-weight: 800;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: transform 0.12s var(--spring), background 0.16s var(--ease);
+}
+.genie-ask:hover {
+  background: linear-gradient(180deg, rgba(140, 95, 225, 0.45), rgba(90, 55, 165, 0.3));
+}
+.genie-ask:active {
+  transform: scale(0.97);
+}
+
+/* Genie's pick, lit on the felt in a mystic violet while the panel is open */
+.bet-spot.genie-pick::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  box-shadow: 0 0 0 2px #b98bff, 0 0 18px rgba(157, 120, 255, 0.6);
+  animation: geniePickPulse 1.5s var(--ease) infinite;
+  pointer-events: none;
+  z-index: 5;
+}
+.bet-spot.genie-pick-bonus::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  box-shadow: 0 0 0 1.5px rgba(185, 139, 255, 0.7);
+  pointer-events: none;
+  z-index: 5;
+}
+@keyframes geniePickPulse {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bet-spot.genie-pick::after {
+    animation: none;
+    opacity: 0.85;
+  }
+}
+
 /* ---------- Modals ---------- */
 .modal-overlay {
   position: fixed;

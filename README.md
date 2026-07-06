@@ -26,6 +26,14 @@ Baccarat Dragon Trainer is a browser baccarat table modeled on a real **Atlantic
 | **▦ Play** | The table, straight up. Buy in, place chips, deal, and watch the roads and your bankroll move. |
 | **◎ Drill** | A focused road-reading practice loop. The board grows hand by hand and quizzes you — *"Next hand Banker — what mark shows on the Small Road?"* — scoring your accuracy and streak. Powered by the same forecast engine a real board uses. |
 
+## 🔮 The Genie
+
+Tucked in the corner is a floating **Genie** orb — the Coach's mischievous opposite. Where the Coach *reasons* about the roads, the Genie *feels*. Tap it and it just tells you, straight up, **what to bet next**: a single **Bet Banker / Player / Tie** call, lit up on the felt in a violet glow.
+
+It arrives at that call the way a superstitious player would — a big random gut feeling tilted by gleefully **spurious omens** pulled from the shoe (a "tired" streak, the colour of the last cards' pips, hand parity, tie echoes) and the occasional whimsical flip to the opposite side. When the vibe takes it, it also throws a **bonus hedge** on top — a chip on ☀ Sun 7, 🐼 Panda 8, or the Dragon Bonus — and lights that spot too. Not happy with the omen? Hit **🔮 Ask again** and it re-rolls a fresh reading.
+
+None of it predicts anything — every hand is still an independent draw. It's pure vibes, for fun. The Coach is the one to actually listen to.
+
 ## The board — a real Atlantic City electronic display
 
 The scoreboard is a recessed, brass-framed cabinet with a glowing **LED result ticker** and neon road markers, laid out like a real board:
@@ -76,7 +84,8 @@ src/
     shoe.js               8-deck shoe: shuffle, burn, cut card, penetration
     sidebets.js           Payout math (EZ push rule, Dragon Bonus ladder)
     bigroad.js            Big Road, Bead Plate, derived roads + Ask forecast
-    roadGenie.js          Pattern-reading / follow-fade coaching logic
+    roadGenie.js          Pattern-reading / follow-fade coaching logic (the Coach)
+    genieOracle.js        Vibes-based "what to bet" oracle (the Genie)
     state.js              Game/session state machine, high-limit config
     *.test.js             Unit tests (node --test)
   ui/                   DOM rendering, no game logic
