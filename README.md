@@ -28,11 +28,11 @@ Baccarat Dragon Trainer is a browser baccarat table modeled on a real **Atlantic
 
 ## 🔮 The Genie
 
-Tucked in the corner is a floating **Genie** orb — the Coach's mischievous opposite. Where the Coach *reasons* about the roads, the Genie *feels*. Tap it and it just tells you, straight up, **what to bet next**: a single **Bet Banker / Player / Tie** call, lit up on the felt in a violet glow.
+Tucked in the corner is a floating **Genie** orb — the Coach's mischievous opposite, and it has a heart. Where the Coach *reasons* about the roads, the Genie *feels*. Tap it and it tells you, straight up, **what to bet next**: a single **Bet Banker / Player / Tie** call, lit up on the felt in a violet glow (still visible when you close the panel to place your chip).
 
-It arrives at that call the way a superstitious player would — a big random gut feeling tilted by gleefully **spurious omens** pulled from the shoe (a "tired" streak, the colour of the last cards' pips, hand parity, tie echoes) and the occasional whimsical flip to the opposite side. When the vibe takes it, it also throws a **bonus hedge** on top — a chip on ☀ Sun 7, 🐼 Panda 8, or the Dragon Bonus — and lights that spot too. Not happy with the omen? Hit **🔮 Ask again** and it re-rolls a fresh reading.
+It's a jittery, **overthinking** little oracle. It grasps at any spurious rhythm it can find in the shoe — a 2-1-2-1 shuffle, a ping-pong chop, stacking doubles, a mirror, plain streak heat, even the hand number's "numerology" — voices a theory or two, contradicts itself, then throws it all away and **trusts its gut** (a big random draw is the dominant term, so every reading feels alive). It runs on an **emotion** — Wired, Spooked, Spiraling, Locked in, Giddy, Cloudy — shown as a beating heart whose pulse (and the orb's) races or calms with its mood. When the vibes sour or it feels a run about to snap, it warns you to **trim your bet unit** and ride light; when it's giddy it might tell you to press. It still throws the occasional **bonus hedge** on ☀ Sun 7, 🐼 Panda 8, or the Dragon Bonus. Not happy with the vibe? Hit **🔮 Ask again** and it spirals through a fresh one.
 
-None of it predicts anything — every hand is still an independent draw. It's pure vibes, for fun. The Coach is the one to actually listen to.
+None of it predicts anything — every hand is still an independent draw. It's all heart, no maths, for fun. The Coach is the one to actually listen to.
 
 ## The board — a real Atlantic City electronic display
 
