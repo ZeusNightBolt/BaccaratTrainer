@@ -599,6 +599,7 @@ button {
   overflow-y: auto;
   overflow-x: hidden;
   scrollbar-width: none;
+  position: relative; /* anchors the roads dropdown */
 }
 .table-area::-webkit-scrollbar {
   display: none;
@@ -607,9 +608,91 @@ button {
 /* ============================================================
    SCOREBOARD — Atlantic City electronic board
    ============================================================ */
-.scoreboard {
+/* The roads live in a dropdown that opens below the toggle bar and overlays the
+   felt, so the table stays centered whether the roads are open or closed. */
+.road-shelf {
   position: relative;
   flex-shrink: 0;
+  z-index: 20;
+}
+
+.road-bar {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--card-edge);
+  background: linear-gradient(180deg, #12161f 0%, #0b0e15 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(240, 214, 147, 0.12),
+    0 6px 16px rgba(0, 0, 0, 0.4);
+  color: var(--ink);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.18s var(--ease), background 0.18s var(--ease);
+}
+.road-bar:hover:not(:disabled) {
+  border-color: rgba(230, 198, 110, 0.4);
+}
+.road-bar:disabled {
+  cursor: default;
+}
+.rb-glyph {
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--brass);
+  flex-shrink: 0;
+}
+.rb-title {
+  font-size: 0.62rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--ink-dim);
+  flex-shrink: 0;
+}
+.road-bar .result-ticker {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  padding: 2px 4px;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  pointer-events: none;
+}
+.rb-chevron {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  display: grid;
+  place-items: center;
+}
+.rb-chevron::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-right: 2px solid var(--brass);
+  border-bottom: 2px solid var(--brass);
+  transform: translateY(-2px) rotate(45deg);
+  transition: transform 0.26s var(--spring);
+}
+.app.roads-open .rb-chevron::before {
+  transform: translateY(1px) rotate(225deg);
+}
+
+.scoreboard {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 5;
+  max-height: min(64vh, 520px);
+  overflow-y: auto;
+  overflow-x: hidden;
   padding: 9px 10px 10px;
   border-radius: 16px;
   border: 1px solid var(--card-edge);
@@ -618,8 +701,17 @@ button {
     inset 0 1px 0 rgba(240, 214, 147, 0.14),
     inset 0 0 0 1px rgba(0, 0, 0, 0.5),
     inset 0 22px 40px rgba(0, 0, 0, 0.45),
-    0 14px 34px rgba(0, 0, 0, 0.62);
-  overflow: hidden;
+    0 20px 44px rgba(0, 0, 0, 0.72);
+  opacity: 0;
+  transform: translateY(-10px) scale(0.99);
+  transform-origin: top center;
+  pointer-events: none;
+  transition: opacity 0.2s var(--ease), transform 0.26s var(--spring);
+}
+.app.roads-open .scoreboard {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
 }
 /* glass sheen across the top of the cabinet */
 .scoreboard::before {
@@ -1174,6 +1266,8 @@ button {
    ============================================================ */
 .felt {
   flex: 0 0 auto;
+  /* With the roads collapsed into their bar, the table centers in the freed space. */
+  margin-block: auto;
   position: relative;
   border-radius: 24px;
   padding: 10px 11px 18px;
@@ -3031,10 +3125,35 @@ button {
   background: radial-gradient(ellipse at 50% 56%, transparent 40%, rgba(230, 198, 110, 0.3) 100%);
   animation: screenFlash 0.66s var(--ease) forwards;
 }
+.screen-flash.flash-dragon {
+  background: radial-gradient(ellipse at 50% 60%, transparent 34%, rgba(255, 110, 40, 0.4) 100%);
+  animation: screenFlash 0.9s var(--ease) forwards;
+  z-index: 208;
+}
 @keyframes screenFlash {
   0% { opacity: 0; }
   28% { opacity: 1; }
   100% { opacity: 0; }
+}
+
+/* The dragon breathes fire across the felt on a Sun 7 / Moon 8 bonus */
+.dragon-roar {
+  position: fixed;
+  left: 50%;
+  top: 46%;
+  z-index: 214;
+  pointer-events: none;
+  font-size: 4.6rem;
+  line-height: 1;
+  white-space: nowrap;
+  filter: drop-shadow(0 4px 18px rgba(255, 120, 40, 0.8));
+  animation: dragonRoar 1.5s cubic-bezier(0.25, 0.9, 0.3, 1) forwards;
+}
+@keyframes dragonRoar {
+  0% { transform: translate(-50%, -50%) scale(0.3) rotate(-8deg); opacity: 0; }
+  22% { transform: translate(-50%, -50%) scale(1.15) rotate(3deg); opacity: 1; }
+  55% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
+  100% { transform: translate(-50%, -52%) scale(1.05) rotate(0deg); opacity: 0; }
 }
 
 /* The winning hand lifts and glows; the losing hand recedes */
@@ -3228,8 +3347,7 @@ button {
   /* Cap the board so the felt and its main bets stay in view; the board's lower
      roads scroll within their own panel on a phone. */
   .scoreboard {
-    max-height: 39vh;
-    overflow-y: auto;
+    max-height: 60vh;
     overscroll-behavior: contain;
     scrollbar-width: none;
   }

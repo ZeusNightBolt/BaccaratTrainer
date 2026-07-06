@@ -36,7 +36,9 @@ None of it predicts anything — every hand is still an independent draw. It's a
 
 ## The board — a real Atlantic City electronic display
 
-The scoreboard is a recessed, brass-framed cabinet with a glowing **LED result ticker** and neon road markers, laid out like a real board:
+The roads live in a **collapsible dropdown**. By default it's a slim **notification bar** (`大路 Roads`) that shows a live ticker of recent results and keeps the table centered in the frame; tap it and the full brass-framed board slides down over the felt. (Drill mode opens it automatically, since Drill is all about reading the board.)
+
+Open, the scoreboard is a recessed cabinet with a glowing **LED result ticker** and neon road markers, laid out like a real board:
 
 - **Bead Plate** — solid B/P/T coins, filled top-to-bottom.
 - **Big Road** — hollow red/blue rings in streak columns, green tie slashes, and pair dots.
@@ -66,6 +68,7 @@ The trainer is tuned to react like a real game app, not a static page — every 
 
 - **Chips fly from the rail.** Tap a spot and a clay chip **arcs from the selected rail chip onto the felt**, tumbling as it lands. The $5 and $25 chips make it easy to top up the side bets in small increments.
 - **Wins pay you in coins.** On a win, gold coins **pour from every winning spot into the wallet HUD** — more coins for a bigger payout — and a **$2k+ headline win flashes the whole screen gold**. The result banner calls the money out loud (`+$2,500`).
+- **The dragon breathes fire.** When the rare 3-card-7 Banker (Sun 7) or 3-card-8 Player (Moon 8) bonus lands, a 🐉🔥 roars across the felt with a fiery flash — the loudest moment on the table.
 - **The winning hand takes the stage.** It lifts and glows gold while the losing hand dims back, and a **natural 8 or 9** flares the total.
 - **The board stamps each result.** The newest road coin **drops onto the Big Road with a spring**, so committing a hand feels physical.
 - **The Genie breathes.** Its orb has a **heartbeat** that races or calms with its mood, glows in the colour of its current pick, and pulses a badge when it has a hunch for you.
@@ -83,10 +86,10 @@ The wallet in the header is a live HUD — bankroll with a running net P/L delta
 
 ## Tech
 
-Vanilla ES modules — no framework, no bundler, no runtime dependencies — so it deploys to GitHub Pages as static files. Dev tooling is only ESLint and Node's built-in test runner.
+Vanilla ES modules — no framework, no bundler, no runtime dependencies — so it deploys to GitHub Pages as static files. Dev tooling is ESLint, Node's built-in test runner, and Playwright for a headless smoke test.
 
 ```
-index.html              Fixed app shell (HUD · gauge · board · felt · dock)
+index.html              Fixed app shell (HUD · gauge · roads dropdown · felt · dock)
 src/
   styles.css            All styling — casino cabinet, LED board, printed felt
   main.js               Wires state + UI, mode switching, HUD, persistence
@@ -98,13 +101,15 @@ src/
     roadGenie.js          Pattern-reading / follow-fade coaching logic (the Coach)
     genieOracle.js        Vibes-based "what to bet" oracle (the Genie)
     state.js              Game/session state machine, high-limit config
-    *.test.js             Unit tests (node --test)
+    *.test.js             Unit tests + a 4000-hand integration sim (node --test)
   ui/                   DOM rendering, no game logic
     table.js · cards.js · chips.js       Felt, dealing, chips (7 denominations)
-    effects.js                           Chip-fly, coin shower, screen flash
+    effects.js                           Chip-fly, coin shower, screen flash, dragon roar
     roadmapView.js                       The five roads, ticker, Ask forecast
     trainingModes.js                     Play / Coach Me / Drill
     roadGenieView.js · payoutSettings.js · rulesContent.js
+e2e/
+  smoke.mjs             Headless browser smoke test (boots the app, plays a hand)
 ```
 
 ## Local development
@@ -112,7 +117,8 @@ src/
 ```bash
 npm install
 npm start      # serves the app at http://localhost:8080
-npm test       # game-logic unit suite (node --test)
+npm test       # game-logic unit + integration suite (node --test)
+npm run smoke  # headless browser smoke test (Playwright + chromium)
 npm run lint   # ESLint
 ```
 
@@ -120,7 +126,7 @@ No build step — `npm start` just serves the static files.
 
 ## CI / CD
 
-- **`ci.yml`** — install, lint, and test on every push / PR to `main`.
+- **`ci.yml`** — lint + unit/integration tests, and a headless **browser smoke test** (Playwright/chromium) on every push / PR to `main`.
 - **`deploy.yml`** — re-runs lint/test as a gate, then publishes to GitHub Pages.
 
 To enable the live link on a fork, turn on **Settings → Pages → Source: GitHub Actions** once.

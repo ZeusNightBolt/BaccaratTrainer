@@ -50,11 +50,24 @@ export function coinShower(fromEl, toEl, count) {
   }
 }
 
-// A brief gold vignette pulse from the screen edges — reserved for headline wins.
+// A brief vignette pulse from the screen edges — gold for a headline win, a fiery
+// orange for a dragon-fire bonus.
 export function screenFlash(kind = 'gold') {
   if (reduced()) return;
   const flash = document.createElement('div');
   flash.className = `screen-flash flash-${kind}`;
   document.body.appendChild(flash);
   flash.addEventListener('animationend', () => flash.remove(), { once: true });
+}
+
+// The dragon breathes fire across the felt when a Sun 7 (Banker 3-card 7) or
+// Panda/Moon 8 (Player 3-card 8) bonus condition lands — the rare, loud moment.
+export function dragonRoar() {
+  if (reduced()) return;
+  screenFlash('dragon');
+  const roar = document.createElement('div');
+  roar.className = 'dragon-roar';
+  roar.textContent = '🐉🔥';
+  document.body.appendChild(roar);
+  roar.addEventListener('animationend', () => roar.remove(), { once: true });
 }

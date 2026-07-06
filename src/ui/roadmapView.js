@@ -17,7 +17,9 @@ export class RoadmapView {
   constructor(root) {
     this.beadEl = root.querySelector('#road-bead');
     this.bigEl = root.querySelector('#road-main');
-    this.tickerEl = root.querySelector('#ticker-track');
+    // The ticker lives in the road toggle bar (outside #scoreboard), so fall back
+    // to a document lookup if it isn't found within the passed root.
+    this.tickerEl = root.querySelector('#ticker-track') || document.querySelector('#ticker-track');
     this.forecastEls = Array.from(root.querySelectorAll('.fc-mark'));
     this.boardTop = root.querySelector('.board-top');
     this.derivedEls = {};

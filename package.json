@@ -7,11 +7,13 @@
   "scripts": {
     "start": "http-server -p 8080 -c-1 .",
     "test": "node --test src/game/*.test.js",
+    "smoke": "node e2e/smoke.mjs",
     "lint": "eslint ."
   },
   "devDependencies": {
     "eslint": "^9.17.0",
-    "http-server": "^14.1.1"
+    "http-server": "^14.1.1",
+    "playwright": "^1.48.0"
   },
   "engines": {
     "node": ">=20"

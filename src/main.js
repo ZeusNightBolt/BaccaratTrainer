@@ -6,7 +6,7 @@ import { RULES_HTML } from './ui/rulesContent.js';
 import { PayoutSettingsView } from './ui/payoutSettings.js';
 import { RoadGenieView } from './ui/roadGenieView.js';
 import { TrainingModes } from './ui/trainingModes.js';
-import { flyChip, coinShower, screenFlash } from './ui/effects.js';
+import { flyChip, coinShower, screenFlash, dragonRoar } from './ui/effects.js';
 
 const appRoot = document.getElementById('app');
 const game = new GameState();
@@ -36,6 +36,7 @@ const el = {
   penetration: document.getElementById('penetration-fill'),
   chipRail: document.getElementById('chip-rail'),
   betSpots: Array.from(document.querySelectorAll('.bet-spot')),
+  roadToggle: document.getElementById('road-toggle'),
   btnClear: document.getElementById('btn-clear'),
   btnRebet: document.getElementById('btn-rebet'),
   btnUndo: document.getElementById('btn-undo'),
@@ -231,6 +232,13 @@ el.betSpots.forEach((spotEl) => {
   });
 });
 
+// The roads are a collapsible dropdown so the table stays centered by default.
+el.roadToggle.addEventListener('click', () => {
+  const open = !appRoot.classList.contains('roads-open');
+  appRoot.classList.toggle('roads-open', open);
+  el.roadToggle.setAttribute('aria-expanded', String(open));
+});
+
 el.btnClear.addEventListener('click', () => {
   game.clearAllBets();
   afterBetChange();
@@ -261,6 +269,10 @@ el.btnDeal.addEventListener('click', async () => {
   genie.render();
   training.onHandComplete();
   jackpots.forEach(sparkleBurst);
+
+  // The dragon breathes fire on the rare 3-card-7 Banker (Sun 7) or 3-card-8
+  // Player (Moon 8) bonus condition — celebrated whether or not it was bet.
+  if (round.hand.bankerThreeCardSeven || round.hand.playerThreeCardEight) dragonRoar();
 
   // Celebrate a win in proportion to what it paid: coins pour from every winning
   // spot into the wallet, and a headline win flashes the whole screen gold.

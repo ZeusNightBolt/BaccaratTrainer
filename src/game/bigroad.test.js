@@ -86,6 +86,23 @@ test('Big Eye Boy derives R/B marks per the look-back-1-column rule', () => {
   assert.deepEqual(Object.values(byCol).map((c) => c.length), [1, 2, 1, 3]);
 });
 
+test('Small Road anchors a new column at C-1 and looks back k=2 (regression)', () => {
+  // Big Road B P P B B P B -> column heights [1,2,2,1,1]. The last mark must be
+  // BLUE (pattern breaks): a bug that shifted BOTH compared columns by k reported
+  // a spurious RED here for Small Road / Cockroach while Big Eye Boy stayed correct.
+  const engine = new RoadEngine();
+  for (const o of ['B', 'P', 'P', 'B', 'B', 'P', 'B']) engine.addResult(o);
+  const small = engine.derivedRoad('smallRoad').map((c) => c.outcome);
+  assert.deepEqual(small, ['B', 'B', 'B']);
+});
+
+test('Cockroach Road derives correct marks with the k=3 look-back (regression)', () => {
+  const engine = new RoadEngine();
+  for (const o of ['B', 'P', 'B', 'B', 'P', 'P', 'B', 'P', 'B', 'P', 'B']) engine.addResult(o);
+  const roach = engine.derivedRoad('cockroachRoad').map((c) => c.outcome);
+  assert.deepEqual(roach, ['B', 'B', 'R', 'B', 'B', 'R']);
+});
+
 test('derived roads produce no marks until enough Big Road history exists', () => {
   const engine = new RoadEngine();
   engine.addResult('B');
