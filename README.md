@@ -16,7 +16,7 @@
 
 ![The table](assets/screenshots/table.png)
 
-Baccarat Dragon Trainer is a browser baccarat table modeled on a real **Atlantic City / Resorts World high-limit salon** — 8-deck commission-free shoe, $100 minimum, $50,000 buy-in — not a textbook diagram. Every detail is built to feel like the electronic pit: a printed felt, clay chips, card-by-card dealing, and the full glowing **road board** with the Chinese "ask" forecast. The whole thing is a fixed 🐉-branded app cabinet — a brushed-metal HUD, an instrument-style shoe gauge, and a bottom betting dock — laid out to fit an **iPhone (Safari) screen** in a compact single view, and it runs entirely in the browser with **zero runtime dependencies** and **no build step**.
+Baccarat Dragon Trainer is a browser baccarat table modeled on a real **Atlantic City / Resorts World high-limit salon** — 8-deck commission-free shoe, $100 minimum, $50,000 buy-in — not a textbook diagram. Every detail is built to feel like the electronic pit: a printed felt, clay chips that **arc from the rail to the spot you tap**, card-by-card dealing, coins that **pour into your wallet when you win**, and the full glowing **road board** with the Chinese "ask" forecast. The whole thing is a fixed 🐉-branded app cabinet — a brushed-metal HUD, an instrument-style shoe gauge, and a bottom betting dock — laid out to fit an **iPhone (Safari) screen** in a compact single view, and it runs entirely in the browser with **zero runtime dependencies** and **no build step**.
 
 ## Three modes
 
@@ -60,9 +60,20 @@ Commission-free "EZ Baccarat" as spread in AC / Resorts World:
 
 The forgone Banker three-card-7 win is exactly what funds the Sun 7 side bet. Sun 7 / Moon 8 ratios are retunable from the ⚙ settings panel; full third-card drawing rules are in the in-app ℹ reference.
 
+## Built to feel alive
+
+The trainer is tuned to react like a real game app, not a static page — every action gets a response, and the payoff scales with what just happened:
+
+- **Chips fly from the rail.** Tap a spot and a clay chip **arcs from the selected rail chip onto the felt**, tumbling as it lands. The $5 and $25 chips make it easy to top up the side bets in small increments.
+- **Wins pay you in coins.** On a win, gold coins **pour from every winning spot into the wallet HUD** — more coins for a bigger payout — and a **$2k+ headline win flashes the whole screen gold**. The result banner calls the money out loud (`+$2,500`).
+- **The winning hand takes the stage.** It lifts and glows gold while the losing hand dims back, and a **natural 8 or 9** flares the total.
+- **The board stamps each result.** The newest road coin **drops onto the Big Road with a spring**, so committing a hand feels physical.
+- **The Genie breathes.** Its orb has a **heartbeat** that races or calms with its mood, glows in the colour of its current pick, and pulses a badge when it has a hunch for you.
+- **Respects your settings.** Everything honours `prefers-reduced-motion` — turn motion down and the juice steps aside.
+
 ## High-limit shoe
 
-Modeled on a real AC high-limit table: **8 decks (416 cards)**, a burn of the first card's value after the shuffle, a cut card placed ~14 cards from the back, and a penetration gauge in the header. When the cut card is reached the shoe is replaced and every road resets together. Chips run **$100 / $500 / $1K / $5K / $25K**; buy in at $50,000, and a bust auto-rebuys so you can keep drilling.
+Modeled on a real AC high-limit table: **8 decks (416 cards)**, a burn of the first card's value after the shuffle, a cut card placed ~14 cards from the back, and a penetration gauge in the header. When the cut card is reached the shoe is replaced and every road resets together. Chips run **$5 / $25 / $100 / $500 / $1K / $5K / $25K** — the $5 and $25 chips are there to feed the side bets in small units, while $100 is the main-game minimum. Buy in at $50,000, and a bust auto-rebuys so you can keep drilling.
 
 ## Session record
 
@@ -89,7 +100,8 @@ src/
     state.js              Game/session state machine, high-limit config
     *.test.js             Unit tests (node --test)
   ui/                   DOM rendering, no game logic
-    table.js · cards.js · chips.js       Felt, dealing, chips
+    table.js · cards.js · chips.js       Felt, dealing, chips (7 denominations)
+    effects.js                           Chip-fly, coin shower, screen flash
     roadmapView.js                       The five roads, ticker, Ask forecast
     trainingModes.js                     Play / Coach Me / Drill
     roadGenieView.js · payoutSettings.js · rulesContent.js

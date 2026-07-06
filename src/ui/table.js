@@ -17,6 +17,8 @@ export class TableView {
     this.bankerCards = root.querySelector('#banker-cards');
     this.playerTotal = root.querySelector('#player-total');
     this.bankerTotal = root.querySelector('#banker-total');
+    this.playerHand = root.querySelector('#player-hand');
+    this.bankerHand = root.querySelector('#banker-hand');
     this.resultBanner = root.querySelector('#result-banner');
   }
 
@@ -40,6 +42,8 @@ export class TableView {
     this.bankerTotal.textContent = '';
     this.playerTotal.classList.remove('is-natural');
     this.bankerTotal.classList.remove('is-natural');
+    this.playerHand.classList.remove('hand-won', 'hand-lost');
+    this.bankerHand.classList.remove('hand-won', 'hand-lost');
     this.resultBanner.classList.remove('show', 'is-big');
     this.resultBanner.textContent = '';
     for (const el of Object.values(this.spotEls)) {
@@ -73,6 +77,14 @@ export class TableView {
   // Returns the DOM elements of any spots that hit a headline bonus (for a burst).
   showResult(round) {
     const { hand, settlement } = round;
+    // Lift the winning hand and dim the loser so the eye lands on the result.
+    if (hand.outcome === 'PLAYER') {
+      this.playerHand.classList.add('hand-won');
+      this.bankerHand.classList.add('hand-lost');
+    } else if (hand.outcome === 'BANKER') {
+      this.bankerHand.classList.add('hand-won');
+      this.playerHand.classList.add('hand-lost');
+    }
     const labels = { PLAYER: 'Player Wins', BANKER: 'Banker Wins', TIE: 'Tie' };
     let text = labels[hand.outcome];
     if (hand.outcome === 'BANKER' && hand.bankerThreeCardSeven) text += ' ☀ Sun 7!';
