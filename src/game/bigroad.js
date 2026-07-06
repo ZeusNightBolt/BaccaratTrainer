@@ -124,8 +124,12 @@ function deriveMark(columns, C, R, k) {
     if (refCol < 0) return null;
     return columns[refCol].length > R ? 'R' : 'B';
   }
-  const a = C - k;
-  const b = C - k - 1;
+  // New column: compare the just-completed column (C-1) against the column k
+  // further back (C-1-k). Only the *reference* shifts by the road's offset k;
+  // the anchor stays at C-1. (For k=1 the two coincide, which is why Big Eye Boy
+  // was already correct, but Small Road (k=2) and Cockroach (k=3) diverge.)
+  const a = C - 1;
+  const b = C - 1 - k;
   if (b < 0) return null;
   return columns[a].length === columns[b].length ? 'R' : 'B';
 }

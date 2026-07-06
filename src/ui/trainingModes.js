@@ -59,6 +59,17 @@ export class TrainingModes {
 
     this.coachRail.hidden = mode !== 'coach';
     this.drillDock.hidden = mode !== 'drill';
+
+    // Drill is all about reading the board, so force the roads open and lock the
+    // toggle; leaving Drill collapses them back to the default (table centered).
+    const roadsOpen = mode === 'drill';
+    this.app.classList.toggle('roads-open', roadsOpen);
+    const roadToggle = this.app.querySelector('#road-toggle');
+    if (roadToggle) {
+      roadToggle.setAttribute('aria-expanded', String(roadsOpen));
+      roadToggle.disabled = roadsOpen;
+    }
+
     this.clearAdvise();
 
     if (mode === 'coach') this.renderCoach();

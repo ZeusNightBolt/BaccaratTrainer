@@ -3,8 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
-  <title>Baccarat Trainer &mdash; Sun 7 / Moon 8</title>
-  <meta name="description" content="A mini-baccarat trainer that mirrors a real Atlantic City / Resorts World EZ Baccarat table: Player, Banker, Tie, pairs, and the Sun 7 / Moon 8 side bets with adjustable paytables, plus live Big Road, Bead Plate, Big Eye Boy, Small Road, and Cockroach Road scoreboards." />
+  <title>Baccarat Dragon Trainer</title>
+  <meta name="description" content="A high-limit Atlantic City / Resorts World EZ Baccarat table you can practice on: commission-free Player / Banker / Tie, the Dragon Bonus, and the Sun 7 / Moon 8 side bets with adjustable paytables — plus the full electronic road board (Big Road, Bead Plate, Big Eye Boy, Small Road, Cockroach) and live coaching." />
+  <meta name="theme-color" content="#04050a" />
+  <meta name="color-scheme" content="dark" />
+  <meta property="og:title" content="Baccarat Dragon Trainer" />
+  <meta property="og:description" content="Practice EZ Baccarat on a high-limit Atlantic City table — Dragon Bonus, Sun 7 / Moon 8, the full road board, a coach and a vibes-reading genie." />
+  <meta property="og:type" content="website" />
   <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%3E%3Ctext%20y='.9em'%20font-size='58'%3E%F0%9F%90%89%3C/text%3E%3C/svg%3E" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -52,11 +57,16 @@
     </div>
 
     <main class="table-area">
-      <section class="scoreboard" id="scoreboard">
-        <div class="result-ticker" id="result-ticker" aria-label="Recent results">
-          <span class="ticker-label">LAST</span>
-          <div class="ticker-track" id="ticker-track"></div>
-        </div>
+      <div class="road-shelf">
+        <button class="road-bar" id="road-toggle" aria-expanded="false" aria-controls="scoreboard" title="Show or hide the roads">
+          <span class="rb-glyph" aria-hidden="true">&#22823;&#36335;</span>
+          <span class="rb-title">Roads</span>
+          <div class="result-ticker" id="result-ticker" aria-label="Recent results">
+            <div class="ticker-track" id="ticker-track"></div>
+          </div>
+          <span class="rb-chevron" aria-hidden="true"></span>
+        </button>
+        <section class="scoreboard" id="scoreboard">
         <div class="scoreboard-header">
           <div class="scoreboard-tabs">
             <button class="tab-btn active" data-view="bigroad">Big Road</button>
@@ -121,6 +131,7 @@
           <p class="forecast-note">Red = pattern holds · Blue = pattern breaks</p>
         </div>
       </section>
+      </div>
 
       <section class="felt">
         <svg class="felt-print" viewBox="0 0 400 300" preserveAspectRatio="xMidYMin slice" aria-hidden="true">

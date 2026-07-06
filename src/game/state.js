@@ -202,9 +202,13 @@ export class GameState {
       biggestWin = Math.max(biggestWin, r.netChange);
       curve.push(r.bankrollAfter);
 
-      if (o === run.outcome) run.len += 1;
-      else run = { outcome: o, len: 1 };
-      if (run.len > longest.len) longest = { ...run };
+      // Ties are neutral on the Big Road — they neither extend nor break a P/B
+      // streak, so skip them when tracking runs.
+      if (o !== 'TIE') {
+        if (o === run.outcome) run.len += 1;
+        else run = { outcome: o, len: 1 };
+        if (run.len > longest.len) longest = { ...run };
+      }
     }
 
     const decisions = wins.player + wins.banker; // ties are neutral

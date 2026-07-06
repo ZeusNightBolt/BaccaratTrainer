@@ -14,6 +14,10 @@ concurrency:
   group: pages
   cancel-in-progress: true
 
+# The devDependency on Playwright must not trigger a browser download on `npm ci`.
+env:
+  PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -41,7 +45,7 @@ jobs:
           mkdir -p _site
           rsync -a \
             --exclude='.git' --exclude='.github' --exclude='node_modules' \
-            --exclude='_site' --exclude='*.test.js' \
+            --exclude='_site' --exclude='*.test.js' --exclude='e2e' \
             ./ _site/
 
       - uses: actions/configure-pages@v5

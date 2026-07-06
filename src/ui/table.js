@@ -87,8 +87,8 @@ export class TableView {
     }
     const labels = { PLAYER: 'Player Wins', BANKER: 'Banker Wins', TIE: 'Tie' };
     let text = labels[hand.outcome];
-    if (hand.outcome === 'BANKER' && hand.bankerThreeCardSeven) text += ' ☀ Sun 7!';
-    if (hand.outcome === 'PLAYER' && hand.playerThreeCardEight) text += ' \u{1F311} Moon 8!';
+    if (hand.outcome === 'BANKER' && hand.bankerThreeCardSeven) text += ' 🐉🔥 Sun 7!';
+    if (hand.outcome === 'PLAYER' && hand.playerThreeCardEight) text += ' 🐉🔥 Moon 8!';
 
     // Name a winning bonus tier so the scaling paytable is learnable through play.
     let bonusText = '';

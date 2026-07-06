@@ -180,3 +180,16 @@ test('shoe reshuffle resets the road engine for a fresh shoe', () => {
   }
   assert.equal(reshuffled, true);
 });
+
+test('stats treats ties as neutral for streaks (a tie does not break a run)', () => {
+  const g = new GameState({ bankroll: 50000 });
+  const mk = (outcome) => ({ hand: { outcome }, netChange: 0, bankrollAfter: 50000 });
+  // Banker, Banker, Tie, Banker — the tie must not reset the 3-long Banker run.
+  g.history = [mk('BANKER'), mk('BANKER'), mk('TIE'), mk('BANKER')];
+  const s = g.stats();
+  assert.equal(s.longestStreak.outcome, 'BANKER');
+  assert.equal(s.longestStreak.len, 3);
+  assert.equal(s.currentStreak.outcome, 'BANKER');
+  assert.equal(s.currentStreak.len, 3);
+  assert.equal(s.wins.tie, 1);
+});

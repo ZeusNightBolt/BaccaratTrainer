@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [main]
 
+# Don't auto-download browsers on `npm ci`; the smoke job installs chromium itself.
+env:
+  PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
+
 jobs:
   lint-and-test:
     runs-on: ubuntu-latest
@@ -20,3 +24,17 @@ jobs:
       - run: npm ci
       - run: npm run lint
       - run: npm test
+
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run smoke
