@@ -11,7 +11,7 @@ const appRoot = document.getElementById('app');
 const game = new GameState();
 const table = new TableView(appRoot);
 const roadmap = new RoadmapView(document.getElementById('scoreboard'));
-const genie = new RoadGenieView(appRoot, game);
+const genie = new RoadGenieView(appRoot, game, { spotEls: table.spotEls });
 const training = new TrainingModes({
   app: appRoot,
   game,
@@ -278,6 +278,7 @@ el.btnDeal.addEventListener('click', async () => {
     refreshBetSummary();
     refreshActionButtons();
     training.onHandComplete();
+    genie.applyHighlight();
   }, 1900);
 });
 
