@@ -10,6 +10,7 @@ export default [
       globals: {
         window: 'readonly',
         document: 'readonly',
+        crypto: 'readonly',
         console: 'readonly',
         setTimeout: 'readonly',
         requestAnimationFrame: 'readonly',
