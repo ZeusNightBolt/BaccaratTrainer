@@ -19,7 +19,9 @@ const TABLE_MAX = 50000;
 export const PHASE = { BETTING: 'BETTING', DEALING: 'DEALING', RESULT: 'RESULT' };
 
 export class GameState {
-  constructor({ bankroll = STARTING_BANKROLL, rng = Math.random, deckCount = 8 } = {}) {
+  // rng: leave unset in production — the shoe then shuffles with the unbiased
+  // crypto RNG (see shoe.js). Inject a seeded float rng only in tests.
+  constructor({ bankroll = STARTING_BANKROLL, rng = null, deckCount = 8 } = {}) {
     this.bankroll = bankroll;
     this.tableMin = TABLE_MIN;
     this.tableMax = TABLE_MAX;

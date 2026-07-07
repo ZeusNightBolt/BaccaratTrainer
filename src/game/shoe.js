@@ -23,11 +23,30 @@ export function createShoeCards(deckCount = DEFAULT_DECK_COUNT) {
   return cards;
 }
 
-// Fisher-Yates shuffle using an injectable RNG so tests can be deterministic.
-export function shuffle(cards, rng = Math.random) {
+// Unbiased integer in [0, maxExclusive) drawn from crypto.getRandomValues,
+// with rejection sampling so no modulo bias is introduced. This is the RNG
+// behind every live shuffle; seedable float RNGs are for tests only.
+export function cryptoRandomInt(maxExclusive) {
+  if (!Number.isInteger(maxExclusive) || maxExclusive <= 0) {
+    throw new Error('maxExclusive must be a positive integer');
+  }
+  const RANGE = 4294967296; // 2^32
+  const limit = RANGE - (RANGE % maxExclusive);
+  const buf = new Uint32Array(1);
+  do {
+    crypto.getRandomValues(buf);
+  } while (buf[0] >= limit);
+  return buf[0] % maxExclusive;
+}
+
+// Fisher-Yates shuffle. With no rng argument (the live table path) each index
+// comes from cryptoRandomInt — cryptographically sound and bias-free. An
+// injectable float rng () => [0,1) is supported for deterministic tests ONLY;
+// never pass one from UI code.
+export function shuffle(cards, rng = null) {
   const arr = cards.slice();
   for (let i = arr.length - 1; i > 0; i -= 1) {
-    const j = Math.floor(rng() * (i + 1));
+    const j = rng ? Math.floor(rng() * (i + 1)) : cryptoRandomInt(i + 1);
     [arr[i], arr[j]] = [arr[j], arr[i]];
   }
   return arr;
@@ -45,7 +64,9 @@ function burn(cards) {
 }
 
 export class Shoe {
-  constructor({ deckCount = DEFAULT_DECK_COUNT, rng = Math.random, cutCardReserve = CUT_CARD_RESERVE } = {}) {
+  // rng: leave unset in production (crypto-backed shuffle); inject a seeded
+  // float rng only for reproducible tests.
+  constructor({ deckCount = DEFAULT_DECK_COUNT, rng = null, cutCardReserve = CUT_CARD_RESERVE } = {}) {
     this.deckCount = deckCount;
     this.rng = rng;
     this.cutCardReserve = cutCardReserve;

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createDeck, createShoeCards, shuffle, Shoe } from './shoe.js';
+import { createDeck, createShoeCards, shuffle, Shoe, cryptoRandomInt } from './shoe.js';
 
 test('createDeck has 52 unique rank/suit combinations', () => {
   const deck = createDeck();
@@ -23,6 +23,29 @@ test('shuffle is a permutation (same multiset, injectable RNG)', () => {
     };
   })();
   const shuffled = shuffle(cards, rng);
+  assert.equal(shuffled.length, cards.length);
+  const before = cards.map((c) => `${c.rank}${c.suit}`).sort();
+  const after = shuffled.map((c) => `${c.rank}${c.suit}`).sort();
+  assert.deepEqual(after, before);
+});
+
+test('cryptoRandomInt stays in [0, max) and covers every residue', () => {
+  const max = 7;
+  const seen = new Set();
+  for (let i = 0; i < 2000; i += 1) {
+    const v = cryptoRandomInt(max);
+    assert.ok(Number.isInteger(v) && v >= 0 && v < max);
+    seen.add(v);
+  }
+  assert.equal(seen.size, max);
+  assert.equal(cryptoRandomInt(1), 0);
+  assert.throws(() => cryptoRandomInt(0));
+  assert.throws(() => cryptoRandomInt(1.5));
+});
+
+test('default (crypto) shuffle is a permutation of the deck', () => {
+  const cards = createDeck();
+  const shuffled = shuffle(cards);
   assert.equal(shuffled.length, cards.length);
   const before = cards.map((c) => `${c.rank}${c.suit}`).sort();
   const after = shuffled.map((c) => `${c.rank}${c.suit}`).sort();
